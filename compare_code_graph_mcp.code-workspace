@@ -123,12 +123,13 @@
 		// "markdown-preview-enhanced.automaticallyShowPreviewOfMarkdownBeingEdited": true,
 
 		// Python settings
-		"editor.defaultFormatter": "charliermarsh.ruff",
-		"editor.formatOnSave": true,
-		"editor.codeActionsOnSave": {
-			"source.fixAll": "explicit",
+		"[python]": {
+			"editor.defaultFormatter": "charliermarsh.ruff",
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.fixAll": "explicit",
+			},
 		},
-
 		"autoDocstring.docstringFormat": "google",
 	}
 }

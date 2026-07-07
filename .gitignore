@@ -37,6 +37,7 @@ Desktop.ini
 
 # Markdown export artifacts
 /**/*.html
+!index.html
 /**/*.pdf
 
 ###############################################################################
