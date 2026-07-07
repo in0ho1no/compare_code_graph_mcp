@@ -1,0 +1,758 @@
+<!DOCTYPE html><html><head>
+      <title>index</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\seigy\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.8.30\crossnote\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-details{margin:0;padding:0;border:none}.markdown-preview .md-toc summary.md-toc-link-wrapper{cursor:pointer;list-style-position:outside}.markdown-preview .md-toc summary.md-toc-link-wrapper::marker{font-size:.85em}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='0']{margin-left:12px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='1']{margin-left:28px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='2']{margin-left:44px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='3']{margin-left:60px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='4']{margin-left:76px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='5']{margin-left:80px}.markdown-preview a.tag,.markdown-preview a.tag:active,.markdown-preview a.tag:link,.markdown-preview a.tag:visited,.markdown-preview span.tag:not(.token){display:inline-block;background-color:var(--vscode-badge-background,rgba(127,127,127,.18));color:var(--vscode-badge-foreground,currentColor);border-radius:2em;font-size:.85em;font-weight:500;padding:.05em .55em;line-height:1.5;white-space:nowrap;text-decoration:none;text-shadow:none;box-shadow:none;transition:background-color .12s ease,opacity .12s ease}.markdown-preview a.tag{cursor:pointer}.markdown-preview a.tag:focus,.markdown-preview a.tag:hover{background-color:var(--vscode-badge-background,rgba(127,127,127,.32));color:var(--vscode-badge-foreground,currentColor);opacity:.85;text-decoration:none;outline:0}.markdown-preview .wikilink-embed-content{border-left:3px solid var(--vscode-textBlockQuote-border,rgba(128,128,128,.3));background:var(--vscode-textBlockQuote-background,rgba(128,128,128,.05));margin:.5em 0;padding:.5em .75em;border-radius:0 3px 3px 0}.markdown-preview .wikilink-embed-content.wikilink-embed-error{border-left-color:var(--vscode-errorForeground,#cf222e);color:var(--vscode-errorForeground,#cf222e);font-style:italic;opacity:.8}.markdown-preview .wikilink-embed-content h1:first-child,.markdown-preview .wikilink-embed-content h2:first-child,.markdown-preview .wikilink-embed-content h3:first-child,.markdown-preview .wikilink-embed-content h4:first-child,.markdown-preview .wikilink-embed-content h5:first-child,.markdown-preview .wikilink-embed-content h6:first-child{margin-top:.25em}.markdown-preview .wikilink-embed-content .wikilink-embed-content{margin:.25em 0;padding:.25em .5em}.markdown-preview .block-id{display:none}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));border:4px solid var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));background-clip:content-box}.scrollbar-style::-webkit-scrollbar-thumb:hover{background-color:var(--vscode-scrollbarSlider-hoverBackground,rgba(120,120,120,.66))}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));border:4px solid var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb:hover{background-color:var(--vscode-scrollbarSlider-hoverBackground,rgba(120,120,120,.66))}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-details{margin:0;padding:0;border:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='0']{padding-left:0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='1']{padding-left:16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='2']{padding-left:32px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='3']{padding-left:48px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='4']{padding-left:64px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='5']{padding-left:80px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+/* Crossnote プレビュー全体の見た目と独自ブロックの装飾を定義する。 */
+.markdown-preview.markdown-preview {
+  background-color: #f0f0f0;
+  /* 画像の配置を記法で切り替える。 */
+  /* 固定幅で差し込みたい画像用のユーティリティ。 */
+  /* parser.js が生成する各 callout（div.note 等）の配色とラベルをまとめて定義する。 */
+}
+.markdown-preview.markdown-preview body {
+  color: #494949;
+}
+.markdown-preview.markdown-preview pre {
+  color: #623542;
+  background-color: #ccede4;
+  padding: 0.75em 1em;
+}
+.markdown-preview.markdown-preview blockquote {
+  border-color: #5f3eab;
+}
+.markdown-preview.markdown-preview h1 {
+  color: #494949;
+  font-weight: bold;
+  padding: 0.3em;
+  border: solid 3px #199aea;
+  border-radius: 0.3em;
+  counter-reset: chapter;
+}
+.markdown-preview.markdown-preview h2 {
+  color: #494949;
+  position: relative;
+  font-weight: bold;
+  margin-top: 0em;
+  margin-bottom: 0.5em;
+  margin-left: 0em;
+  margin-right: 0em;
+  padding-top: 0.5em;
+  padding-bottom: 0.1em;
+  padding-left: 0em;
+  padding-right: 0.5em;
+  border-bottom: 2px solid #199aea;
+  counter-reset: sub-chapter;
+}
+.markdown-preview.markdown-preview h3 {
+  color: #494949;
+  background-color: #f4f4f4;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-left: 0.5em;
+  padding-right: 0em;
+  border-left: 6px solid #199aea;
+  counter-reset: section;
+}
+.markdown-preview.markdown-preview h4 {
+  color: #494949;
+  background-color: #f4f4f4;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  padding-left: 0.5em;
+  padding-right: 0em;
+  border-left: 2px solid #199aea;
+  border-radius: 6px;
+  counter-reset: sub-section;
+}
+.markdown-preview.markdown-preview h5 {
+  color: #494949;
+  padding-top: 0.3em;
+  padding-bottom: 0em;
+  padding-left: 0.7em;
+  padding-right: 0em;
+  border-bottom-style: dotted;
+  border-bottom-color: #199aea;
+  border-bottom-width: thin;
+  counter-reset: sub-sub-section;
+}
+.markdown-preview.markdown-preview h2:before {
+  counter-increment: chapter;
+  content: counter(chapter) ". ";
+}
+.markdown-preview.markdown-preview h3:before {
+  counter-increment: sub-chapter;
+  content: counter(chapter) "." counter(sub-chapter) ". ";
+}
+.markdown-preview.markdown-preview h4:before {
+  counter-increment: section;
+  content: counter(chapter) "." counter(sub-chapter) "." counter(section) ". ";
+}
+.markdown-preview.markdown-preview h5:before {
+  counter-increment: sub-section;
+  content: counter(chapter) "." counter(sub-chapter) "." counter(section) "." counter(sub-section) ".";
+}
+.markdown-preview.markdown-preview table thead th {
+  background: #199aea;
+  font-weight: bold;
+  vertical-align: top;
+  color: #fff;
+}
+.markdown-preview.markdown-preview table th,
+.markdown-preview.markdown-preview table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+.markdown-preview.markdown-preview table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+.markdown-preview.markdown-preview table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+.markdown-preview.markdown-preview hr {
+  background-color: #f4f4f4;
+  border-top: 2px dashed #199aea;
+}
+.markdown-preview.markdown-preview a {
+  color: #293dc2;
+  text-decoration: none;
+}
+.markdown-preview.markdown-preview a:hover,
+.markdown-preview.markdown-preview a:active {
+  text-decoration: underline;
+}
+.markdown-preview.markdown-preview img[src*='#center'] {
+  display: block;
+  margin: auto;
+}
+.markdown-preview.markdown-preview img[src*='#right'] {
+  display: block;
+  float: right;
+}
+.markdown-preview.markdown-preview .image_w300 {
+  width: 300px;
+  height: auto;
+}
+.markdown-preview.markdown-preview div.note {
+  color: #38225d;
+  background-color: #e2daf1;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.note::before {
+  content: '📝 Note';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.note > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.note > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.note > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.tip {
+  color: #094409;
+  background-color: #d2f9d2;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.tip::before {
+  content: '💡 Tip';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.tip > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.tip > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.tip > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.info {
+  color: #002b4d;
+  background-color: #e0f2ff;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.info::before {
+  content: '🔍 Info';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.info > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.info > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.info > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.source {
+  color: #2f3f4f;
+  background-color: #e9eef3;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.source::before {
+  content: '📚 Source';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.source > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.source > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.source > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.warning {
+  color: #651b01;
+  background-color: #ffdacc;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.warning::before {
+  content: '🔥 Warning';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.warning > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.warning > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.warning > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.caution {
+  color: #664b00;
+  background-color: #fff1cc;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.caution::before {
+  content: '⚡ Caution';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.caution > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.caution > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.caution > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.sample {
+  color: #82362d;
+  background-color: #7dc9d2;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.sample::before {
+  content: '💻 Sample';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.sample > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.sample > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.sample > :last-child {
+  margin-bottom: 0;
+}
+.markdown-preview.markdown-preview div.result {
+  color: #e6dddd;
+  background-color: #192222;
+  padding: 0.3em;
+  border-radius: 0.3em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+}
+.markdown-preview.markdown-preview div.result::before {
+  content: '🔴 Result';
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.2em;
+}
+.markdown-preview.markdown-preview div.result > p {
+  margin: 0;
+}
+.markdown-preview.markdown-preview div.result > :first-child {
+  margin-top: 0;
+}
+.markdown-preview.markdown-preview div.result > :last-child {
+  margin-bottom: 0;
+}
+
+      </style>
+      
+
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview  ">
+      
+<h1 id="serena--codebase-memory-mcp-比較検証手順書">Serena / codebase-memory-mcp 比較検証手順書 </h1>
+<ul>
+<li>対象リポジトリ: <a href="https://github.com/FreeRTOS/FreeRTOS-Kernel">FreeRTOS-Kernel</a></li>
+<li>検証スコープ: read-only の構造解釈性能のみ（コード編集機能は対象外）</li>
+<li>想定エージェント: GitHub Copilot Chat（VS Code、Agent モード）</li>
+<li>機能比較の実施手順（検証クエリ・正解データ・採点表）は別紙とする</li>
+</ul>
+<hr>
+<h1 id="第1部-一般的な紹介">第1部 一般的な紹介 </h1>
+<h2 id="そもそも-mcp-サーバとは何か">そもそも MCP サーバとは何か </h2>
+<p>MCP（Model Context Protocol）は、AI コーディングエージェントと外部ツールを接続するためのオープンな標準プロトコルである。<br>
+GitHub Copilot や Cursor など、主要なエージェントが対応している。</p>
+<p>仕組みは単純で、以下の3者で構成される。</p>
+<pre data-role="codeBlock" data-info="text" class="language-text text"><code>[LLM (クラウド)] ←→ [MCPクライアント = Coding Agent] ←→ [MCPサーバ (ローカルプロセス)]
+                        (GitHub Copilot 等)             (Serena / codebase-memory-mcp)
+</code></pre><ul>
+<li>MCPサーバは「ツール」（例: <code>find_symbol</code>、<code>trace_call_path</code>）を提供するだけのプログラムである。<br>
+多くは stdio 上の JSON-RPC で動くローカルプロセスであり、それ自体に AI は入っていない。</li>
+<li>MCPクライアント（Coding Agent）がユーザーの自然言語の質問を解釈し、どのツールをどの引数で呼ぶかを決めて MCP サーバを呼び出す。</li>
+<li>ツールの実行結果はエージェントに返り、エージェントがそれを LLM のコンテキストに載せて回答を生成する。</li>
+</ul>
+<p>今回比較する2つのツールはどちらも、構造化されたコード情報をエージェントへ安く正確に供給する索引サービスである。<br>
+回答の言語化はエージェント側の LLM が担う。</p>
+<h2 id="データ送信に関する整理">データ送信に関する整理 </h2>
+<p><strong>ここで紹介する2つのMCPサーバはいずれも、自発的に外部へコードを送信することはない。</strong><br>
+<strong>コードが社外（LLM API）へ出るのは、Coding Agent が通常の推論リクエストとして送信する経路のみである。</strong></p>
+<ul>
+<li>MCP サーバはローカルプロセスとして動作し、通信相手は MCP クライアント（エージェント）だけである。</li>
+<li>ツールの実行結果（関数一覧、呼び出しグラフ等）は、エージェントがコンテキストに含めた時点で初めて LLM API へ送られる。<br>
+これは MCP を使わずエージェントがファイルを直接 Read する場合と同じ経路であり、MCP を挟むことで新しい送信経路が増えるわけではない。</li>
+<li>codebase-memory-mcp は README で「100%ローカル動作・テレメトリ収集なし」を明言している。<br>
+インデックス（SQLite DB）もローカル保存される（格納先は環境構築の章を参照）。</li>
+<li>Serena もローカル実行で、インデックスやメモリは <code>.serena/</code> 配下にローカル保存される。</li>
+</ul>
+<p>コード以外の外部通信として以下がある。</p>
+<table>
+<thead>
+<tr>
+<th>通信</th>
+<th>codebase-memory-mcp</th>
+<th>Serena</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初回インストール時</td>
+<td>GitHub Releases からバイナリ取得</td>
+<td>uvx が GitHub からソース取得・依存パッケージ取得</td>
+</tr>
+<tr>
+<td>起動時</td>
+<td>新バージョンの有無チェック（自動アップデート機構）</td>
+<td>言語サーバ（clangd 等）が未導入の場合の自動ダウンロード</td>
+</tr>
+<tr>
+<td>解析対象コード</td>
+<td>送信されない</td>
+<td>送信されない</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>導入時はバージョン（コミットSHA / リリースタグ）を固定し、設定は <code>.vscode/mcp.json</code> でワークスペース単位に閉じる。</p>
+</blockquote>
+<h2 id="ツール紹介">ツール紹介 </h2>
+<h3 id="codebase-memory-mcp">codebase-memory-mcp </h3>
+<p>tree-sitter による AST パースでコードベースを永続的な知識グラフ（SQLite）にインデックスする MCP サーバ。<br>
+C を含む主要言語では Hybrid LSP と呼ばれる型解決を内蔵する。<br>
+<code>search_graph</code> / <code>trace_call_path</code> / <code>query_graph</code>（Cypher）/ dead code 検出などのツールを提供する。<br>
+単一の静的バイナリで、ランタイム依存ゼロ。</p>
+<h4 id="強いところ">強いところ </h4>
+<ul>
+<li>セットアップがほぼゼロ。バイナリを置いて <code>.vscode/mcp.json</code> に1エントリ書くだけで動く。</li>
+<li>インデックスが高速・軽量で、クエリはミリ秒未満。トークン消費が file-by-file 探索より桁違いに少ない。</li>
+<li>ビルド構成に依存しない「全ソースの網羅ビュー」。portable/ 以下の全ポートが見える。</li>
+<li>read-only 設計なのでコードを壊すリスクが構造的にない。</li>
+</ul>
+<h4 id="弱いところ">弱いところ </h4>
+<ul>
+<li>tree-sitter はプリプロセス前のソースを見るため、マクロで包装された API のエイリアス解決や、<code>#if</code> による可視性の判定は原理的に苦手な可能性が高い（検証項目2・3で確認する）。</li>
+<li>関数ポインタ経由の間接呼び出しの解決には限界がある（これは Serena/clangd も同様）。</li>
+<li>編集機能はなく、構造クエリ専用である。</li>
+</ul>
+<h3 id="serena">Serena </h3>
+<p>LSP（Language Server Protocol）を土台にした「コーディングエージェント用ツールキット」。<br>
+C/C++ では clangd を言語サーバとして使い、シンボルの定義・参照をセマンティックに解決する。<br>
+<code>find_symbol</code> / <code>find_referencing_symbols</code> / <code>get_symbols_overview</code> などのツールを提供する。</p>
+<h4 id="強いところ-1">強いところ </h4>
+<ul>
+<li>clangd はプリプロセス後のコードを解釈するため、マクロ展開・typedef 連鎖・条件コンパイルを正しく追える（組込みCでは決定的な差になりうる）。</li>
+<li>IDE の「定義へ移動」「参照検索」と同等の精度が期待できる。</li>
+<li>本検証の対象外だが、シンボル編集（リネーム・参照一括更新）も可能である。</li>
+</ul>
+<h4 id="弱いところ-1">弱いところ </h4>
+<ul>
+<li>C の精度は <code>compile_commands.json</code> の有無と品質に完全に依存する。無いと参照解決が大きく劣化する。</li>
+<li>Python + uv + clangd と依存が多く、セットアップコストが高い。</li>
+<li>clangd は「1つのビルド構成」しか見ない。FreeRTOS のような多ポート構成では、compile_commands.json に含まれないポートは不可視になる。</li>
+<li>大規模リポジトリでは初回インデックスと言語サーバの起動が重い。</li>
+</ul>
+<h3 id="役割の違い">役割の違い </h3>
+<table>
+<thead>
+<tr>
+<th>観点</th>
+<th>codebase-memory-mcp</th>
+<th>Serena</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>解析基盤</td>
+<td>tree-sitter AST + Hybrid LSP（プリプロセス前）</td>
+<td>clangd（LSP、プリプロセス後）</td>
+</tr>
+<tr>
+<td>C解析の前提条件</td>
+<td>なし</td>
+<td>compile_commands.json 必須</td>
+</tr>
+<tr>
+<td>ビュー</td>
+<td>全ソースの網羅ビュー</td>
+<td>単一ビルド構成の正確なビュー</td>
+</tr>
+<tr>
+<td>セットアップ</td>
+<td>ほぼゼロ</td>
+<td>重い</td>
+</tr>
+<tr>
+<td>位置づけ</td>
+<td>構造知識グラフのクエリエンジン</td>
+<td>エージェントが操作するIDE</td>
+</tr>
+</tbody>
+</table>
+<h2 id="環境構築手順">環境構築手順 </h2>
+<h3 id="前提条件github-copilot--vs-code">前提条件（GitHub Copilot / VS Code） </h3>
+<ol>
+<li>組織ポリシーの有効化。<br>
+Copilot Business では「MCP servers in Copilot」ポリシーがデフォルト無効であり、組織管理者が有効化しない限り MCP を使えない。<br>
+技術的な設定より先に詰まりやすいポイントなので、最初に確認する。</li>
+<li>Agent モード限定。<br>
+MCP ツールは Copilot Chat の Agent モードでのみ使用でき、Ask / Edit モードからは見えない。</li>
+<li>VS Code は MCP 対応版（1.99 以降、推奨は最新安定版）を使う。</li>
+</ol>
+<h3 id="設定ファイルの基本vscodemcpjson">設定ファイルの基本（<code>.vscode/mcp.json</code>） </h3>
+<p>ワークスペース単位の設定は、リポジトリ直下の <code>.vscode/mcp.json</code> に書く。<br>
+ユーザープロファイル側（<code>MCP: Open User Configuration</code>）はグローバル登録になるため使わない。<br>
+グローバル登録すると全プロジェクトの全セッションにツール定義が載り、無関係な作業でもコンテキストを消費するためである。</p>
+<p><strong>ルートキーは <code>servers</code> である（<code>mcpServers</code> ではない）。</strong><br>
+他エージェント向けの設定例をコピーしてキーを直し忘れるのが定番のミスなので注意する。</p>
+<p><code>${workspaceFolder}</code> などの定義済み変数が使えるため、パスをハードコードせずに書ける。<br>
+DB 実体（後述の <code>.cbm-cache/</code>）を gitignore しておけば、このファイル自体はコミットしてチーム共有できる。</p>
+<p>両サーバを設定した例を示す。</p>
+<pre data-role="codeBlock" data-info="json" class="language-json json"><code><span class="token punctuation">{</span>
+  <span class="token property">"servers"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"codebaseMemory"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"stdio"</span><span class="token punctuation">,</span>
+      <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"C:\\tools\\codebase-memory-mcp\\codebase-memory-mcp.exe"</span><span class="token punctuation">,</span>
+      <span class="token property">"env"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token property">"CBM_CACHE_DIR"</span><span class="token operator">:</span> <span class="token string">"${workspaceFolder}\\.cbm-cache"</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">"serena"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"stdio"</span><span class="token punctuation">,</span>
+      <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"uvx"</span><span class="token punctuation">,</span>
+      <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token string">"--from"</span><span class="token punctuation">,</span> <span class="token string">"git+https://github.com/oraios/serena@&lt;コミットSHAまたはタグ&gt;"</span><span class="token punctuation">,</span>
+        <span class="token string">"serena"</span><span class="token punctuation">,</span> <span class="token string">"start-mcp-server"</span><span class="token punctuation">,</span>
+        <span class="token string">"--context"</span><span class="token punctuation">,</span> <span class="token string">"ide-assistant"</span><span class="token punctuation">,</span>
+        <span class="token string">"--project"</span><span class="token punctuation">,</span> <span class="token string">"${workspaceFolder}"</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre><p>比較検証中は一方をコメントアウトし、片方ずつ有効化して実施する（別紙参照）。</p>
+<h3 id="codebase-memory-mcp-のセットアップ-skip-config-前提">codebase-memory-mcp のセットアップ（<code>--skip-config</code> 前提） </h3>
+<p>方針:<br>
+インストーラの自動設定（エージェント設定・スキル・フックの書き込み）は使わない。<br>
+<code>--skip-config</code> でバイナリ配置のみ行い、<code>.vscode/mcp.json</code> は手書きで管理する。<br>
+エージェント設定を勝手に書き換えられないので、何がどこに入ったかを把握できる。<br>
+トレードオフとして、本来 <code>install</code> が仕込む指示ファイルとフック（Grep 時にグラフ検索結果を非ブロッキングで添える補助）が入らない。<br>
+そのため、実運用時のグラフツールへの誘導は <a href="http://copilot-instructions.md">copilot-instructions.md</a> に自分で書く必要がある（→ 付録A）。</p>
+<ol>
+<li>
+<p>バイナリ入手と検証。<br>
+Releases から Windows 用 zip（<code>codebase-memory-mcp-windows-amd64.zip</code>）を取得する。<br>
+<code>checksums.txt</code> の SHA-256 と Attestation を検証してから、同梱インストーラを <code>--skip-config</code> で実行する。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>gh attestation verify <span class="token punctuation">.</span>\codebase-memory-mcp-windows-amd64<span class="token punctuation">.</span>zip <span class="token operator">--</span>repo DeusData/codebase-memory-mcp
+
+<span class="token function">Expand-Archive</span> codebase-memory-mcp-windows-amd64<span class="token punctuation">.</span>zip <span class="token operator">-</span>DestinationPath <span class="token punctuation">.</span>
+<span class="token comment"># 一読してから実行すること</span>
+<span class="token punctuation">.</span>\install<span class="token punctuation">.</span>ps1 <span class="token operator">--</span><span class="token function">skip-config</span>   <span class="token comment"># バイナリ配置のみ。エージェント設定は書き換えない</span>
+</code></pre>
+</li>
+<li>
+<p>DB（インデックス）をワークスペース内に配置する。<br>
+デフォルトでは SQLite DB がユーザープロファイル配下（<code>~/.cache/codebase-memory-mcp/</code>）に作られ、リポジトリから存在が見えない。<br>
+環境変数 <code>CBM_CACHE_DIR</code> で格納先を上書きできるので、<code>.vscode/mcp.json</code> の <code>env</code> で <code>${workspaceFolder}\.cbm-cache</code> を指定する（前掲の設定例）。</p>
+<pre data-role="codeBlock" data-info="gitignore" class="language-gitignore gitignore"><code><span class="token entry string">.cbm-cache<span class="token punctuation">/</span></span>
+<span class="token entry string">.codebase-memory<span class="token punctuation">/</span></span>
+</code></pre><blockquote>
+<p><code>.codebase-memory/</code> は Team-Shared Graph Artifact 用のディレクトリで、インデックス実行時に圧縮スナップショット <code>graph.db.zst</code> がリポジトリ直下に書かれることがある。<br>
+将来チームでインデックスを共有したくなったら、これをあえてコミットする選択肢がある（クローンした側は再インデックス不要になる公式機能）。</p>
+</blockquote>
+</li>
+<li>
+<p>インデックス作成。<br>
+エージェント経由でも CLI でも実行できるが、時間計測しやすい CLI を基本とする。<br>
+<strong>CLI から操作する場合も、MCP サーバと同じ DB を見るように同じ <code>CBM_CACHE_DIR</code> をシェル側に設定してから実行する。</strong><br>
+これを忘れると CLI はデフォルトのユーザーディレクトリ側に別の DB を作ってしまう。<br>
+「CLI ではインデックス済みなのにエージェントからは見えない」という事故になるため注意する。<br>
+なお <code>${workspaceFolder}</code> は VS Code の変数であり、シェルでは展開されないので実パスで指定する。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token variable">$env</span>:CBM_CACHE_DIR = <span class="token string">"C:\work\FreeRTOS-Kernel\.cbm-cache"</span>
+codebase-memory-mcp <span class="token function">cli</span> index_repository <span class="token string">'{"repo_path": "C:\\work\\FreeRTOS-Kernel"}'</span>
+codebase-memory-mcp <span class="token function">cli</span> list_projects   <span class="token comment"># ノード数・エッジ数・indexed_at を記録</span>
+</code></pre>
+</li>
+<li>
+<p>DB の更新忘れに気付ける仕組み。<br>
+ソースを更新したのにインデックスが古いまま、という状態を検出できるようにする。二段構えとする。</p>
+<p>(a) 自動追従を有効にしておく（第一の防御）。<br>
+サーバには git ポーリングでファイル変更を検知して増分再インデックスする背景ウォッチャがあり、<code>auto_watch</code> はデフォルト有効である。<br>
+設定を確認する。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>codebase-memory-mcp config list   <span class="token comment"># auto_watch: true を確認</span>
+</code></pre><p>(b) 鮮度チェックをスクリプト化する（第二の防御。ウォッチャが動いていなかった場合の検出）。<br>
+<code>list_projects</code> の <code>indexed_at</code> と git の最終コミット時刻を突き合わせる。<br>
+リポジトリに <code>check_index_freshness.ps1</code> として置いておく。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token variable">$env</span>:CBM_CACHE_DIR = <span class="token string">"<span class="token variable">$PSScriptRoot</span>\.cbm-cache"</span>
+<span class="token variable">$indexedAt</span> = <span class="token punctuation">(</span>codebase-memory-mcp <span class="token function">cli</span> <span class="token operator">--</span>raw list_projects <span class="token punctuation">|</span> <span class="token function">ConvertFrom-Json</span><span class="token punctuation">)</span><span class="token punctuation">.</span>projects <span class="token punctuation">|</span>
+    <span class="token function">Where-Object</span> <span class="token punctuation">{</span> <span class="token variable">$_</span><span class="token punctuation">.</span>name <span class="token operator">-like</span> <span class="token string">"*FreeRTOS*"</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token function">Select-Object</span> <span class="token operator">-</span>ExpandProperty indexed_at
+<span class="token variable">$lastCommit</span> = git log <span class="token operator">-</span>1 <span class="token operator">--</span>format=<span class="token operator">%</span>cI
+<span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token namespace">[datetime]</span><span class="token variable">$lastCommit</span> <span class="token operator">-gt</span> <span class="token namespace">[datetime]</span><span class="token variable">$indexedAt</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">Write-Warning</span> <span class="token string">"インデックスが古い可能性: indexed_at=<span class="token variable">$indexedAt</span> &lt; last commit=<span class="token variable">$lastCommit</span> → 再インデックス推奨"</span>
+<span class="token punctuation">}</span> <span class="token keyword keyword-else">else</span> <span class="token punctuation">{</span>
+    <span class="token function">Write-Host</span> <span class="token string">"インデックスは最新 (indexed_at=<span class="token variable">$indexedAt</span>)"</span>
+<span class="token punctuation">}</span>
+</code></pre><blockquote>
+<p>注意点が2つある。<br>
+ウォッチャは git ベースの変更検知なので、コミットされていない編集への追従タイミングは保証を当てにしないこと。<br>
+また <code>--raw</code> 出力の JSON 構造はバージョンで変わりうるので、動かなくなったら <code>list_projects</code> の生出力を確認して調整すること。<br>
+エージェント側からは <code>index_status</code> ツールでも状態確認できる。</p>
+</blockquote>
+<p>検証（別紙）では、各クエリ実施前にこの鮮度チェックを通すことを手順に含める。</p>
+</li>
+<li>
+<p>グラフツールへの誘導記述（実運用向け・比較検証では不要）。<br>
+<code>--skip-config</code> では誘導用の指示ファイルが入らないため、実運用時は付録Aの雛形を <code>.github/copilot-instructions.md</code> に書く。<br>
+比較検証ではプロンプト側でツール使用を強制するため不要である（別紙参照）。</p>
+</li>
+</ol>
+<h3 id="serena-のセットアップ">Serena のセットアップ </h3>
+<ol>
+<li>
+<p>uv の導入。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>winget install astral-sh<span class="token punctuation">.</span>uv
+</code></pre>
+</li>
+<li>
+<p>clangd の導入。<br>
+LLVM 公式リリース、または <code>winget install LLVM.LLVM</code> で導入し、<code>clangd --version</code> が通ることを確認する。</p>
+</li>
+<li>
+<p>compile_commands.json の生成（最重要）。<br>
+FreeRTOS-Kernel は単体ではライブラリであり、<code>FreeRTOSConfig.h</code> とポート選択がないとビルドが成立しない。<br>
+最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。<br>
+リポジトリ同梱の <code>examples/template_configuration/FreeRTOSConfig.h</code> を利用する。</p>
+<p>WSL2/Linux 側での例:</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token comment"># リポジトリルートに検証用の最小 CMakeLists.txt を用意</span>
+<span class="token function">cat</span> <span class="token operator">&gt;</span> CMakeLists_bench.txt <span class="token operator">&lt;&lt;</span> <span class="token string">'EOF'
+cmake_minimum_required(VERSION 3.15)
+project(freertos_bench C)
+set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
+add_library(freertos_config INTERFACE)
+target_include_directories(freertos_config INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
+add_subdirectory(. FreeRTOS-Kernel)
+EOF</span>
+
+cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token punctuation">\</span>
+      <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX <span class="token punctuation">\</span>
+      <span class="token parameter variable">-C</span> /dev/null <span class="token parameter variable">-DCMAKE_PROJECT_INCLUDE</span><span class="token operator">=</span>CMakeLists_bench.txt <span class="token operator"><span class="token file-descriptor important">2</span>&gt;</span>/dev/null <span class="token punctuation">\</span>
+  <span class="token operator">||</span> cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX
+
+<span class="token comment"># clangd はルート直下の compile_commands.json を探す</span>
+<span class="token function">cp</span> build/compile_commands.json <span class="token builtin class-name">.</span>
+</code></pre><blockquote>
+<p>上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。<br>
+<code>FreeRTOS/FreeRTOS</code>（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。<br>
+どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。</p>
+</blockquote>
+</li>
+<li>
+<p><code>.vscode/mcp.json</code> への登録。<br>
+前掲の設定例の serena エントリを使う。<br>
+uvx は指定がないと実行のたびに main の最新を取りに行くため、<code>@コミットSHA</code> または <code>@タグ</code> で必ずピン止めする。<br>
+<code>--project ${workspaceFolder}</code> により、対象プロジェクトは開いているワークスペースに固定される。</p>
+</li>
+<li>
+<p>プロジェクト設定。<br>
+初回起動で生成される <code>.serena/project.yml</code> を編集する。</p>
+<pre data-role="codeBlock" data-info="yaml" class="language-yaml yaml"><code><span class="token key atrule">languages</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> cpp        <span class="token comment"># C は cpp 言語キー（clangd）で扱う</span>
+<span class="token key atrule">read_only</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>  <span class="token comment"># 今回は read-only 比較なので編集ツールを無効化</span>
+</code></pre>
+</li>
+<li>
+<p>インデックスとオンボーディング。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>uvx <span class="token operator">--</span><span class="token keyword keyword-from">from</span> <span class="token string">"git+https://github.com/oraios/serena@&lt;同じピン&gt;"</span> serena project index
+</code></pre><p>Copilot Chat（Agent モード）での初回セッションではオンボーディング（プロジェクト理解メモの生成）が走る。<br>
+オンボーディング完了後を計測開始点とする（初回セッションを計測に含めない）。</p>
+</li>
+</ol>
+<h3 id="起動と動作確認">起動と動作確認 </h3>
+<ol>
+<li><code>.vscode/mcp.json</code> を保存すると、ファイル内のサーバ一覧上部に Start ボタンが表示されるのでクリックして起動する。<br>
+初回はサーバを信頼するかの確認ダイアログが出る。</li>
+<li>Copilot Chat を開き、モードを Agent に切り替える。</li>
+<li>チャット入力欄のツールアイコンを開き、サーバとツールの一覧が見えることを確認する。<br>
+ツール一覧では使う予定のサーバ/ツールだけ有効化する。<br>
+同時有効化できるツール数には上限があり、有効ツールが多いほどツール定義分のコンテキストを毎ターン消費するためである。</li>
+<li>初回のツール呼び出し時は実行許可の確認ダイアログが出る。<br>
+許可のスコープ（今回のみ / セッション / ワークスペース）を選べるので、検証時はセッション程度に留めるのが無難である。</li>
+<li>動作確認の目安は次のとおり。<br>
+codebase-memory-mcp は <code>list_projects</code> でノード数・エッジ数・<code>indexed_at</code> が返ること。<br>
+Serena は <code>find_symbol</code> で <code>xTaskCreate</code> の定義が <code>tasks.c</code> に解決されること。<br>
+Serena でクロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。</li>
+<li>トラブル時はコマンドパレット → <code>MCP: List Servers</code> → 対象サーバ → Show Output でサーバログを確認する。<br>
+Serena はダッシュボード（<a href="http://localhost:24282/dashboard/">http://localhost:24282/dashboard/</a>）でも状態を確認できる。</li>
+</ol>
+<hr>
+<h2 id="付録a-実運用での素の-grep-と-mcp-ツールの使い分け">付録A: 実運用での素の Grep と MCP ツールの使い分け </h2>
+<p>比較検証では公平性のため内蔵ツールを封じるが、実運用で Grep を禁止してはいけない。<br>
+理由と使い分けの指針を示す。</p>
+<h3 id="なぜ禁止しないのか">なぜ禁止しないのか </h3>
+<ol>
+<li>役割が異なる。<br>
+グラフ/LSP が得意なのは構造クエリ（呼び出し元・依存・影響範囲・dead code）である。<br>
+一方、文字列リテラル・コメント・ログメッセージ・設定キーの検索はテキスト検索の領域であり、グラフには入っていないか不完全である。<br>
+codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glob、単一ファイル読み取りは Read を使え」と明記している。<br>
+封じると答えられない質問が生じ、エージェントが幻覚で埋めるリスクが上がる。</li>
+<li>トークン消費で高くつくのは Grep そのものではなく「探索ループ」である。<br>
+構造的な質問を grep → ファイル全体を Read → また grep… と回すパターンが高コストになる。<br>
+（構造クエリ5問でグラフ経由 約3,400トークン vs file-by-file 探索 約41.2万トークン、という報告値がある。）<br>
+パターンが明確な単発 grep はマッチ行しか返らず数百トークンで済み、グラフクエリと大差ない。</li>
+<li>フォールバック・クロスチェックとしての価値がある。<br>
+インデックスが古い/パース漏れがあるとき、grep での裏取りが誤答を防ぐ。</li>
+</ol>
+<h3 id="使い分けの指針copilot-instructionsmd-に書く内容の雛形">使い分けの指針（<a href="http://copilot-instructions.md">copilot-instructions.md</a> に書く内容の雛形） </h3>
+<pre data-role="codeBlock" data-info="markdown" class="language-markdown markdown"><code><span class="token title important"><span class="token punctuation">##</span> コード調査ツールの使い分け</span>
+<span class="token list punctuation">-</span> 構造的な質問（この関数を呼ぶのは誰か / 何に依存するか / 変更の影響範囲 /
+  dead code）は、grep で探索せず codebase-memory-mcp のグラフツール
+  （trace_call_path, search_graph, detect_changes 等）を最初に使うこと。
+  1回のグラフクエリで済む質問を grep + Read の繰り返しで調べないこと。
+<span class="token list punctuation">-</span> 文字列リテラル・コメント・ログメッセージ・設定値の検索は Grep を使うこと。
+<span class="token list punctuation">-</span> 単一ファイルの内容確認は Read を使うこと。
+<span class="token list punctuation">-</span> グラフの結果が疑わしい場合（0件・鮮度警告あり）は、インデックスの
+  再作成を提案した上で grep で裏取りしてよい。
+</code></pre><div class="note">
+<p><code>--skip-config</code> を使わない標準インストールでは、検出したエージェントに対して同趣旨の指示ファイルやスキル、Grep 時にグラフ検索結果を添える非ブロッキングのフックが自動で入る。<br>
+<code>--skip-config</code> 運用では、この雛形を <a href="http://copilot-instructions.md">copilot-instructions.md</a> に書くことで代替する。</p>
+</div>
+<h3 id="まとめ">まとめ </h3>
+<table>
+<thead>
+<tr>
+<th>質問の種類</th>
+<th>使うべきツール</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>呼び出し元・依存・影響範囲</td>
+<td>グラフ/LSP（MCP）</td>
+<td>1クエリで完結、トークン最小</td>
+</tr>
+<tr>
+<td>文字列・コメント・設定値検索</td>
+<td>Grep</td>
+<td>グラフに載っていない情報</td>
+</tr>
+<tr>
+<td>ファイル内容の精読</td>
+<td>Read</td>
+<td>構造化不要</td>
+</tr>
+<tr>
+<td>MCP の結果が0件・鮮度不明</td>
+<td>Grep で裏取り</td>
+<td>幻覚・古いインデックスの検出</td>
+</tr>
+</tbody>
+</table>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+  
+    </body></html>
