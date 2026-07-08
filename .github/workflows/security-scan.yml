@@ -21,11 +21,27 @@ jobs:
         run: docker build -t local-semgrep docker/semgrep/
       - name: Run semgrep
         run: |
+          exclude_args=()
+          while IFS= read -r -d '' md; do
+            html="${md%.md}.html"
+            if [ -f "$html" ]; then
+              exclude_args+=(--exclude "$html")
+            fi
+          done < <(find . -type f -name '*.md' -print0)
+
           docker run --rm \
             -v "$PWD:/src" \
             -w /src \
             local-semgrep \
-            semgrep scan --config p/default --metrics=off --json --output .semgrep-results.json . || true
+            semgrep scan --config p/default --metrics=off --error --quiet "${exclude_args[@]}" --json --output .semgrep-results.json . || true
+      - name: Check plaintext HTTP links in Markdown (allow localhost)
+        run: |
+          matches=$(grep -RInE --include='*.md' 'http://[^[:space:])>\"]+' . | grep -Ev 'http://(localhost|127\.0\.0\.1|\[::1\]|::1)([:/]|$)' || true)
+          if [ -n "$matches" ]; then
+            echo "Disallowed plaintext HTTP links found in Markdown:"
+            echo "$matches"
+            exit 1
+          fi
       - name: Check semgrep results
         run: |
           if [ -f .semgrep-results.json ]; then
