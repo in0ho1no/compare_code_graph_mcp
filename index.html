@@ -656,6 +656,85 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
 </tr>
 </tbody>
 </table>
+<hr>
+<h3 id="serena-のセットアップ">Serena のセットアップ </h3>
+<h4 id="uv-の導入">uv の導入 </h4>
+<p>以下で導入する。<br>
+導入済みなら不要。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>winget install <span class="token operator">--</span>source winget <span class="token operator">--</span>id astral-sh<span class="token punctuation">.</span>uv <span class="token operator">-</span>e
+</code></pre><p>以下でバージョン確認できればOK</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>uv <span class="token operator">-</span>V
+</code></pre><h4 id="clangd-の導入">clangd の導入 </h4>
+<p>以下で導入する。<br>
+導入済みなら不要。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>winget install <span class="token operator">--</span>source winget <span class="token operator">--</span>id LLVM<span class="token punctuation">.</span>LLVM <span class="token operator">-</span>e
+</code></pre><p>以下通ればOK</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>clangd <span class="token operator">--</span>version
+</code></pre><h4 id="compile_commandsjson-の生成最重要">compile_commands.json の生成（最重要） </h4>
+<p>FreeRTOS-Kernel は単体ではライブラリであり、<code>FreeRTOSConfig.h</code> とポート選択がないとビルドが成立しない。<br>
+最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。<br>
+リポジトリ同梱の <code>examples/template_configuration/FreeRTOSConfig.h</code> を利用する。</p>
+<p>WSL2/Linux 側での例:</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token comment"># リポジトリルートに検証用の最小 CMakeLists.txt を用意</span>
+<span class="token function">cat</span> <span class="token operator">&gt;</span> CMakeLists_bench.txt <span class="token operator">&lt;&lt;</span> <span class="token string">'EOF'
+cmake_minimum_required(VERSION 3.15)
+project(freertos_bench C)
+set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
+add_library(freertos_config INTERFACE)
+target_include_directories(freertos_config INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
+add_subdirectory(. FreeRTOS-Kernel)
+EOF</span>
+
+cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token punctuation">\</span>
+      <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX <span class="token punctuation">\</span>
+      <span class="token parameter variable">-C</span> /dev/null <span class="token parameter variable">-DCMAKE_PROJECT_INCLUDE</span><span class="token operator">=</span>CMakeLists_bench.txt <span class="token operator"><span class="token file-descriptor important">2</span>&gt;</span>/dev/null <span class="token punctuation">\</span>
+  <span class="token operator">||</span> cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX
+
+<span class="token comment"># clangd はルート直下の compile_commands.json を探す</span>
+<span class="token function">cp</span> build/compile_commands.json <span class="token builtin class-name">.</span>
+</code></pre><blockquote>
+<p>上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。<br>
+<code>FreeRTOS/FreeRTOS</code>（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。<br>
+どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。</p>
+</blockquote>
+<h4 id="vscodemcpjson-への登録"><code>.vscode/mcp.json</code> への登録 </h4>
+<p>前出の設定例の serena エントリを使う。<br>
+uvx は指定がないと実行のたびに main の最新を取りに行くため、<code>@コミットSHA</code> または <code>@タグ</code> で必ずピン止めする。<br>
+<code>--project ${workspaceFolder}</code> により、対象プロジェクトは開いているワークスペースに固定される。</p>
+<ol start="5">
+<li>
+<p>プロジェクト設定。<br>
+初回起動で生成される <code>.serena/project.yml</code> を編集する。</p>
+<pre data-role="codeBlock" data-info="yaml" class="language-yaml yaml"><code><span class="token key atrule">languages</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> cpp        <span class="token comment"># C は cpp 言語キー（clangd）で扱う</span>
+<span class="token key atrule">read_only</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>  <span class="token comment"># 今回は read-only 比較なので編集ツールを無効化</span>
+</code></pre>
+</li>
+<li>
+<p>インデックスとオンボーディング。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>uvx <span class="token operator">--</span><span class="token keyword keyword-from">from</span> <span class="token string">"git+https://github.com/oraios/serena@&lt;同じピン&gt;"</span> serena project index
+</code></pre><p>Copilot Chat（Agent モード）での初回セッションではオンボーディング（プロジェクト理解メモの生成）が走る。<br>
+オンボーディング完了後を計測開始点とする（初回セッションを計測に含めない）。</p>
+</li>
+</ol>
+<h3 id="起動と動作確認">起動と動作確認 </h3>
+<ol>
+<li><code>.vscode/mcp.json</code> を保存すると、ファイル内のサーバ一覧上部に Start ボタンが表示されるのでクリックして起動する。<br>
+初回はサーバを信頼するかの確認ダイアログが出る。</li>
+<li>Copilot Chat を開き、モードを Agent に切り替える。</li>
+<li>チャット入力欄のツールアイコンを開き、サーバとツールの一覧が見えることを確認する。<br>
+ツール一覧では使う予定のサーバ/ツールだけ有効化する。<br>
+同時有効化できるツール数には上限があり、有効ツールが多いほどツール定義分のコンテキストを毎ターン消費するためである。</li>
+<li>初回のツール呼び出し時は実行許可の確認ダイアログが出る。<br>
+許可のスコープ（今回のみ / セッション / ワークスペース）を選べるので、検証時はセッション程度に留めるのが無難である。</li>
+<li>動作確認の目安は次のとおり。<br>
+codebase-memory-mcp は <code>list_projects</code> でノード数・エッジ数・<code>indexed_at</code> が返ること。<br>
+Serena は <code>find_symbol</code> で <code>xTaskCreate</code> の定義が <code>tasks.c</code> に解決されること。<br>
+Serena でクロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。</li>
+<li>トラブル時はコマンドパレット → <code>MCP: List Servers</code> → 対象サーバ → Show Output でサーバログを確認する。<br>
+Serena はダッシュボード（<a href="http://localhost:24282/dashboard/">http://localhost:24282/dashboard/</a>）でも状態を確認できる。</li>
+</ol>
 
       </div>
       

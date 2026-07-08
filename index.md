@@ -165,7 +165,7 @@ DB 実体（後述の `.cbm-cache/`）を gitignore しておけば、このフ�
       "type": "stdio",
       "command": "uvx",
       "args": [
-        "--from", "git+https://github.com/oraios/serena@<コミットSHAまたはタグ>",
+        "--from", "git+https://github.com/oraios/serena@2449313",
         "serena", "start-mcp-server",
         "--context", "ide-assistant",
         "--project", "${workspaceFolder}"
@@ -316,3 +316,116 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
 | 文字列・コメント・設定値検索 | Grep | グラフに載っていない情報 |
 | ファイル内容の精読 | Read | 構造化不要 |
 | MCP の結果が0件・鮮度不明 | Grep で裏取り | 幻覚・古いインデックスの検出 |
+
+---
+
+### Serena のセットアップ
+
+#### uv の導入
+
+以下で導入する。  
+導入済みなら不要。  
+
+```powershell
+winget install --source winget --id astral-sh.uv -e
+```
+
+以下でバージョン確認できればOK
+
+```powershell
+uv -V
+```
+
+#### clangd の導入
+
+以下で導入する。  
+導入済みなら不要。  
+
+```powershell
+winget install --source winget --id LLVM.LLVM -e
+```
+
+以下パスをシステム環境変数PATHへ追加しておく。  
+
+> C:\Program Files\LLVM\bin\clangd --version.exe
+
+VSCode・ターミナルなど再起動後に以下通ればOK
+
+```powershell
+clangd --version
+```
+
+#### compile_commands.json の生成
+
+このファイルを用意できないと話にならない。
+
+FreeRTOS-Kernel は単体ではライブラリであり、`FreeRTOSConfig.h` とポート選択がないとビルドが成立しない。  
+最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。  
+リポジトリ同梱の `examples/template_configuration/FreeRTOSConfig.h` を利用する。
+
+WSL2/Linux 側での例:
+
+```bash
+# リポジトリルートに検証用の最小 CMakeLists.txt を用意
+cat > CMakeLists_bench.txt << 'EOF'
+cmake_minimum_required(VERSION 3.15)
+project(freertos_bench C)
+set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
+add_library(freertos_config INTERFACE)
+target_include_directories(freertos_config INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
+add_subdirectory(. FreeRTOS-Kernel)
+EOF
+
+cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+      -DFREERTOS_PORT=GCC_POSIX \
+      -C /dev/null -DCMAKE_PROJECT_INCLUDE=CMakeLists_bench.txt 2>/dev/null \
+  || cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DFREERTOS_PORT=GCC_POSIX
+
+# clangd はルート直下の compile_commands.json を探す
+cp build/compile_commands.json .
+```
+
+> 上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。  
+> `FreeRTOS/FreeRTOS`（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。  
+> どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。
+
+#### `.vscode/mcp.json` への登録
+
+前出の設定例の serena エントリを使う。  
+uvx は指定がないと実行のたびに main の最新を取りに行くため、`@コミットSHA` で必ずピン止めする。  
+`--project ${workspaceFolder}` により、対象プロジェクトは開いているワークスペースに固定される。
+
+#### プロジェクト設定  
+
+初回起動で生成される `.serena/project.yml` を編集する。
+
+```yaml
+languages:
+  - cpp        # C は cpp 言語キー（clangd）で扱う
+read_only: true  # 生成AIによる実装変更させないため編集ツールを無効化
+```
+
+#### インデックスとオンボーディング
+
+```powershell
+uvx --from "git+https://github.com/oraios/serena@2449313" serena project index
+```
+
+Copilot Chat（Agent モード）での初回セッションではオンボーディング（プロジェクト理解メモの生成）が走る。  
+
+### 起動と動作確認
+
+1. `.vscode/mcp.json` を保存すると、ファイル内のサーバ一覧上部に Start ボタンが表示されるのでクリックして起動する。  
+2. Copilot Chat を開き、モードを Agent に切り替える。
+3. チャット入力欄のツールアイコンを開き、サーバとツールの一覧が見えることを確認する。  
+ツール一覧では使う予定のサーバ/ツールだけ有効化する。  
+同時有効化できるツール数には上限があり、有効ツールが多いほどツール定義分のコンテキストを毎ターン消費するためである。
+4. 初回のツール呼び出し時は実行許可の確認ダイアログが出る。  
+許可のスコープ（今回のみ / セッション / ワークスペース）を選べるので、検証時はセッション程度に留めるのが無難である。
+5. 動作確認の目安は次のとおり。  
+codebase-memory-mcp は `list_projects` でノード数・エッジ数・`indexed_at` が返ること。  
+Serena は `find_symbol` で `xTaskCreate` の定義が `tasks.c` に解決されること。  
+Serena でクロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。
+6. トラブル時はコマンドパレット → `MCP: List Servers` → 対象サーバ → Show Output でサーバログを確認する。  
+Serena はダッシュボード（<http://localhost:24282/dashboard/>）でも状態を確認できる。
