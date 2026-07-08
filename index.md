@@ -10,10 +10,12 @@ export_on_save:
 
 # Serena / codebase-memory-mcp 比較検証手順書
 
-- 対象リポジトリ: [FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)
 - 検証スコープ: read-only の構造解釈性能のみ（コード編集機能は対象外）
 - 想定エージェント: GitHub Copilot Chat（VS Code、Agent モード）
 - 機能比較の実施手順（検証クエリ・正解データ・採点表）は別紙とする
+- サンプルリポジトリ: [FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)  
+本書のパス・コマンド例は、このリポジトリを `C:\work\FreeRTOS-Kernel` に取得した前提で記載する。  
+別のリポジトリに適用する場合は、パスと clangd 用ビルド構成（Serena の手順3）を読み替える。
 
 ---
 
@@ -114,6 +116,18 @@ C/C++ では clangd を言語サーバとして使い、シンボルの定義・
 
 ## 環境構築手順
 
+### 共通準備（サンプルリポジトリの取得）
+
+比較の再現性のため、タグを固定して取得する。  
+両ツールに同一コミットをインデックスさせることが比較の大前提となる。
+
+```powershell
+cd C:\work
+git clone --branch V11.3.0 --depth 1 https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+cd FreeRTOS-Kernel
+git rev-parse HEAD   # コミットSHAを記録に残しておく
+```
+
 ### 前提条件（GitHub Copilot / VS Code）
 
 1. 組織ポリシーの有効化。  
@@ -142,7 +156,7 @@ DB 実体（後述の `.cbm-cache/`）を gitignore しておけば、このフ�
   "servers": {
     "codebaseMemory": {
       "type": "stdio",
-      "command": "C:\\tools\\codebase-memory-mcp\\codebase-memory-mcp.exe",
+      "command": "codebase-memory-mcp",
       "env": {
         "CBM_CACHE_DIR": "${workspaceFolder}\\.cbm-cache"
       }
@@ -170,165 +184,91 @@ DB 実体（後述の `.cbm-cache/`）を gitignore しておけば、このフ�
 `--skip-config` でバイナリ配置のみ行い、`.vscode/mcp.json` は手書きで管理する。  
 エージェント設定を勝手に書き換えられないので、何がどこに入ったかを把握できる。  
 トレードオフとして、本来 `install` が仕込む指示ファイルとフック（Grep 時にグラフ検索結果を非ブロッキングで添える補助）が入らない。  
-そのため、実運用時のグラフツールへの誘導は copilot-instructions.md に自分で書く必要がある（→ 付録A）。
+そのため、実運用時のグラフツールへの誘導は copilot-instructions.md に自分で書く必要がある（付録A）。
 
-1. バイナリ入手と検証。  
+#### バイナリ入手と検証
+
 Releases から Windows 用 zip（`codebase-memory-mcp-windows-amd64.zip`）を取得する。  
-`checksums.txt` の SHA-256 と Attestation を検証してから、同梱インストーラを `--skip-config` で実行する。
+`checksums.txt` の SHA-256 と Attestation を検証しておく。  
 
-   ```powershell
-   gh attestation verify .\codebase-memory-mcp-windows-amd64.zip --repo DeusData/codebase-memory-mcp
+```powershell
+gh attestation verify .\codebase-memory-mcp-windows-amd64.zip --repo DeusData/codebase-memory-mcp
+```
 
-   Expand-Archive codebase-memory-mcp-windows-amd64.zip -DestinationPath .
-   # 一読してから実行すること
-   .\install.ps1 --skip-config   # バイナリ配置のみ。エージェント設定は書き換えない
-   ```
+問題ないことが確認できたら圧縮ファイルを展開する。
 
-2. DB（インデックス）をワークスペース内に配置する。  
+```powershell
+Expand-Archive codebase-memory-mcp-windows-amd64.zip -DestinationPath ./codebase-memory-mcp
+```
+
+エージェント設定は書き換えず、バイナリ配置とPATH追加のみ行うように`--skip-config`を指定して実行する。
+
+```powershell
+.\codebase-memory-mcp\install.ps1 --skip-config
+```
+
+インストーラは PATH への追加まで行うため、`.vscode/mcp.json` の `command` はコマンド名だけでよい。（前出の設定例）。  
+ただしユーザー PATH の変更は既存プロセスに反映されない。  
+インストール直後は新しいターミナルで `where.exe codebase-memory-mcp` が通ることを確認し、VS Code は完全に再起動（終了→起動）させる。
+
+バージョンは以下で確認できる。
+
+```powershell
+codebase-memory-mcp --version
+```
+
+#### DB（インデックス）をワークスペース内に配置する
+
 デフォルトでは SQLite DB がユーザープロファイル配下（`~/.cache/codebase-memory-mcp/`）に作られ、リポジトリから存在が見えない。  
-環境変数 `CBM_CACHE_DIR` で格納先を上書きできるので、`.vscode/mcp.json` の `env` で `${workspaceFolder}\.cbm-cache` を指定する（前掲の設定例）。  
+環境変数 `CBM_CACHE_DIR` で格納先を上書きできるので、`.vscode/mcp.json` の `env` で `${workspaceFolder}\.cbm-cache` を指定する（前出の設定例）。  
+あわせて `.gitignore` に追記する（今回はインデックスをコミットしない方針）。
 
-   ```gitignore
-   .cbm-cache/
-   .codebase-memory/
-   ```
+```gitignore
+.cbm-cache/
+.codebase-memory/
+```
 
-   > `.codebase-memory/` は Team-Shared Graph Artifact 用のディレクトリで、インデックス実行時に圧縮スナップショット `graph.db.zst` がリポジトリ直下に書かれることがある。  
-   > 将来チームでインデックスを共有したくなったら、これをあえてコミットする選択肢がある（クローンした側は再インデックス不要になる公式機能）。  
+> `.codebase-memory/` は Team-Shared Graph Artifact 用のディレクトリで、インデックス実行時に圧縮スナップショット `graph.db.zst` がリポジトリ直下に書かれることがある。  
+> 将来チームでインデックスを共有したくなったら、これをあえてコミットする選択肢がある（クローンした側は再インデックス不要になる公式機能）。今回は gitignore しておく。
 
-3. インデックス作成。  
-エージェント経由でも CLI でも実行できるが、時間計測しやすい CLI を基本とする。  
+#### インデックス作成
+
+エージェント経由でも CLI でも実行できるが、無駄にトークン消費しいないよう CLI から実行する。  
 **CLI から操作する場合も、MCP サーバと同じ DB を見るように同じ `CBM_CACHE_DIR` をシェル側に設定してから実行する。**  
 これを忘れると CLI はデフォルトのユーザーディレクトリ側に別の DB を作ってしまう。  
 「CLI ではインデックス済みなのにエージェントからは見えない」という事故になるため注意する。  
-なお `${workspaceFolder}` は VS Code の変数であり、シェルでは展開されないので実パスで指定する。
+なお `${workspaceFolder}` は VS Code の変数であり、シェルでは展開されないので実パスで指定する。  
 
-   ```powershell
-   $env:CBM_CACHE_DIR = "C:\work\FreeRTOS-Kernel\.cbm-cache"
-   codebase-memory-mcp cli index_repository '{"repo_path": "C:\\work\\FreeRTOS-Kernel"}'
-   codebase-memory-mcp cli list_projects   # ノード数・エッジ数・indexed_at を記録
-   ```
+```powershell
+$env:CBM_CACHE_DIR = "C:\work\FreeRTOS-Kernel\.cbm-cache"
+codebase-memory-mcp cli index_repository --repo-path "C:\\work\\FreeRTOS-Kernel" | ConvertFrom-Json | ConvertTo-Json -Depth 10
+codebase-memory-mcp cli list_projects | ConvertFrom-Json | ConvertTo-Json -Depth 10
+```
 
-4. DB の更新忘れに気付ける仕組み。  
-ソースを更新したのにインデックスが古いまま、という状態を検出できるようにする。二段構えとする。
+> Windows PowerShell 5.1 の `ConvertTo-Json` は非ASCII文字を `\uXXXX` にエスケープするため、日本語を含む出力は PowerShell 7（`pwsh`）の方が読みやすい。  
 
-   (a) 自動追従を有効にしておく（第一の防御）。  
-   サーバには git ポーリングでファイル変更を検知して増分再インデックスする背景ウォッチャがあり、`auto_watch` はデフォルト有効である。  
-   設定を確認する。
+#### DB の更新忘れに気付ける仕組み
 
-   ```powershell
-   codebase-memory-mcp config list   # auto_watch: true を確認
-   ```
+ソースを更新したのにインデックスが古いまま、という状態を検出できるようにしておく。  
 
-   (b) 鮮度チェックをスクリプト化する（第二の防御。ウォッチャが動いていなかった場合の検出）。  
-   `list_projects` の `indexed_at` と git の最終コミット時刻を突き合わせる。  
-   リポジトリに `check_index_freshness.ps1` として置いておく。
+codebase-memory-mcpには git ポーリングでファイル変更を検知して増分再インデックスする設定が存在する。  
+設定の確認・変更は `config list` / `config set` で行う。  
+なお設定はインデックスと同じ格納ディレクトリに保存されるため、前項と同様に `CBM_CACHE_DIR` をシェルに設定してから実行する。
 
-   ```powershell
-   $env:CBM_CACHE_DIR = "$PSScriptRoot\.cbm-cache"
-   $indexedAt = (codebase-memory-mcp cli --raw list_projects | ConvertFrom-Json).projects |
-       Where-Object { $_.name -like "*FreeRTOS*" } | Select-Object -ExpandProperty indexed_at
-   $lastCommit = git log -1 --format=%cI
-   if ([datetime]$lastCommit -gt [datetime]$indexedAt) {
-       Write-Warning "インデックスが古い可能性: indexed_at=$indexedAt < last commit=$lastCommit → 再インデックス推奨"
-   } else {
-       Write-Host "インデックスは最新 (indexed_at=$indexedAt)"
-   }
-   ```
+```powershell
+$env:CBM_CACHE_DIR = "C:\work\FreeRTOS-Kernel\.cbm-cache"
+codebase-memory-mcp config list                  # auto_watch: true を確認
+codebase-memory-mcp config set auto_watch true   # false だった場合に有効化する
+```
 
-   > 注意点が2つある。  
-   > ウォッチャは git ベースの変更検知なので、コミットされていない編集への追従タイミングは保証を当てにしないこと。  
-   > また `--raw` 出力の JSON 構造はバージョンで変わりうるので、動かなくなったら `list_projects` の生出力を確認して調整すること。  
-   > エージェント側からは `index_status` ツールでも状態確認できる。
+> ウォッチャは git ベースの変更検知なので、コミットされていない編集への追従タイミングは保証を当てにしないこと。  
 
-   検証（別紙）では、各クエリ実施前にこの鮮度チェックを通すことを手順に含める。
+検証（別紙）では、各クエリ実施前にこのチェックを通すことを手順に含める。
 
-5. グラフツールへの誘導記述（実運用向け・比較検証では不要）。  
+#### グラフツールへの誘導記述（実運用向け・比較検証では不要）
+
 `--skip-config` では誘導用の指示ファイルが入らないため、実運用時は付録Aの雛形を `.github/copilot-instructions.md` に書く。  
 比較検証ではプロンプト側でツール使用を強制するため不要である（別紙参照）。
-
-### Serena のセットアップ
-
-1. uv の導入。
-
-   ```powershell
-   winget install astral-sh.uv
-   ```
-
-2. clangd の導入。  
-LLVM 公式リリース、または `winget install LLVM.LLVM` で導入し、`clangd --version` が通ることを確認する。
-
-3. compile_commands.json の生成（最重要）。  
-FreeRTOS-Kernel は単体ではライブラリであり、`FreeRTOSConfig.h` とポート選択がないとビルドが成立しない。  
-最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。  
-リポジトリ同梱の `examples/template_configuration/FreeRTOSConfig.h` を利用する。
-
-   WSL2/Linux 側での例:
-
-   ```bash
-   # リポジトリルートに検証用の最小 CMakeLists.txt を用意
-   cat > CMakeLists_bench.txt << 'EOF'
-   cmake_minimum_required(VERSION 3.15)
-   project(freertos_bench C)
-   set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
-   add_library(freertos_config INTERFACE)
-   target_include_directories(freertos_config INTERFACE
-       ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
-   add_subdirectory(. FreeRTOS-Kernel)
-   EOF
-
-   cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-         -DFREERTOS_PORT=GCC_POSIX \
-         -C /dev/null -DCMAKE_PROJECT_INCLUDE=CMakeLists_bench.txt 2>/dev/null \
-     || cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DFREERTOS_PORT=GCC_POSIX
-
-   # clangd はルート直下の compile_commands.json を探す
-   cp build/compile_commands.json .
-   ```
-
-   > 上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。  
-   > `FreeRTOS/FreeRTOS`（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。  
-   > どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。
-
-4. `.vscode/mcp.json` への登録。  
-前掲の設定例の serena エントリを使う。  
-uvx は指定がないと実行のたびに main の最新を取りに行くため、`@コミットSHA` または `@タグ` で必ずピン止めする。  
-`--project ${workspaceFolder}` により、対象プロジェクトは開いているワークスペースに固定される。
-
-5. プロジェクト設定。  
-初回起動で生成される `.serena/project.yml` を編集する。
-
-   ```yaml
-   languages:
-     - cpp        # C は cpp 言語キー（clangd）で扱う
-   read_only: true  # 今回は read-only 比較なので編集ツールを無効化
-   ```
-
-6. インデックスとオンボーディング。
-
-   ```powershell
-   uvx --from "git+https://github.com/oraios/serena@<同じピン>" serena project index
-   ```
-
-   Copilot Chat（Agent モード）での初回セッションではオンボーディング（プロジェクト理解メモの生成）が走る。  
-   オンボーディング完了後を計測開始点とする（初回セッションを計測に含めない）。
-
-### 起動と動作確認
-
-1. `.vscode/mcp.json` を保存すると、ファイル内のサーバ一覧上部に Start ボタンが表示されるのでクリックして起動する。  
-初回はサーバを信頼するかの確認ダイアログが出る。
-2. Copilot Chat を開き、モードを Agent に切り替える。
-3. チャット入力欄のツールアイコンを開き、サーバとツールの一覧が見えることを確認する。  
-ツール一覧では使う予定のサーバ/ツールだけ有効化する。  
-同時有効化できるツール数には上限があり、有効ツールが多いほどツール定義分のコンテキストを毎ターン消費するためである。
-4. 初回のツール呼び出し時は実行許可の確認ダイアログが出る。  
-許可のスコープ（今回のみ / セッション / ワークスペース）を選べるので、検証時はセッション程度に留めるのが無難である。
-5. 動作確認の目安は次のとおり。  
-codebase-memory-mcp は `list_projects` でノード数・エッジ数・`indexed_at` が返ること。  
-Serena は `find_symbol` で `xTaskCreate` の定義が `tasks.c` に解決されること。  
-Serena でクロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。
-6. トラブル時はコマンドパレット → `MCP: List Servers` → 対象サーバ → Show Output でサーバログを確認する。  
-Serena はダッシュボード（<http://localhost:24282/dashboard/>）でも状態を確認できる。
 
 ---
 
@@ -365,10 +305,8 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
   再作成を提案した上で grep で裏取りしてよい。
 ```
 
-:::note
-`--skip-config` を使わない標準インストールでは、検出したエージェントに対して同趣旨の指示ファイルやスキル、Grep 時にグラフ検索結果を添える非ブロッキングのフックが自動で入る。  
-`--skip-config` 運用では、この雛形を copilot-instructions.md に書くことで代替する。
-:::
+> `--skip-config` を使わない標準インストールでは、検出したエージェントに対して同趣旨の指示ファイルやスキル、Grep 時にグラフ検索結果を添える非ブロッキングのフックが自動で入る。  
+> `--skip-config` 運用では、この雛形を copilot-instructions.md に書くことで代替する。
 
 ### まとめ
 
