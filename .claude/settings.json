@@ -77,29 +77,5 @@
       "PowerShell(irm *)",
       "WebFetch"
     ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash|PowerShell|Shell|Read|Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/entrypoint.py pre"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash|PowerShell|Shell|Read|WebFetch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/entrypoint.py post"
-          }
-        ]
-      }
-    ]
   }
 }
