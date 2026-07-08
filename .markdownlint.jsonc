@@ -19,6 +19,9 @@
   "MD024": {
     "siblings_only": true
   },
+  
+  // 本文書に限ってTop Levelを複数許可する
+  "MD025": false,
 
   // MD051(リンク断片の整合): 目次は Markdown Preview Enhanced が独自規則で
   // アンカー(#見出し)を自動生成する。markdownlint の算出方式と日本語見出しで
