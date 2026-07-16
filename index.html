@@ -348,7 +348,7 @@
     <body for="html-export">
       <div class="crossnote markdown-preview  ">
       
-<h1 id="serena--codebase-memory-mcp-比較検証手順書">Serena / codebase-memory-mcp 比較検証手順書 </h1>
+<h1 id="serena--codebase-memory-mcp--codegraph-比較検証手順書">Serena / codebase-memory-mcp / CodeGraph 比較検証手順書 </h1>
 <ul>
 <li>検証スコープ: read-only の構造解釈性能のみ（コード編集機能は対象外）</li>
 <li>想定エージェント: GitHub Copilot Chat（VS Code、Agent モード）</li>
@@ -371,10 +371,10 @@ GitHub Copilot や Cursor など、主要なエージェントが対応してい
 <li>MCPクライアント（Coding Agent）がユーザーの自然言語の質問を解釈し、どのツールをどの引数で呼ぶかを決めて MCP サーバを呼び出す。</li>
 <li>ツールの実行結果はエージェントに返り、エージェントがそれを LLM のコンテキストに載せて回答を生成する。</li>
 </ul>
-<p>今回比較する2つのツールはどちらも、構造化されたコード情報をエージェントへ安く正確に供給する索引サービスである。<br>
+<p>今回比較するツールはいずれも、構造化されたコード情報をエージェントへ安く正確に供給する索引サービスである。<br>
 回答の言語化はエージェント側の LLM が担う。</p>
 <h2 id="データ送信に関する整理">データ送信に関する整理 </h2>
-<p><strong>ここで紹介する2つのMCPサーバはいずれも、自発的に外部へコードを送信することはない。</strong><br>
+<p><strong>ここで紹介するMCPサーバはいずれも、自発的に外部へコードを送信することはない。</strong><br>
 <strong>コードが社外（LLM API）へ出るのは、Coding Agent が通常の推論リクエストとして送信する経路のみである。</strong></p>
 <ul>
 <li>MCP サーバはローカルプロセスとして動作し、通信相手は MCP クライアント（エージェント）だけである。</li>
@@ -383,6 +383,9 @@ GitHub Copilot や Cursor など、主要なエージェントが対応してい
 <li>codebase-memory-mcp は README で「100%ローカル動作・テレメトリ収集なし」を明言している。<br>
 インデックス（SQLite DB）もローカル保存される（格納先は環境構築の章を参照）。</li>
 <li>Serena もローカル実行で、インデックスやメモリは <code>.serena/</code> 配下にローカル保存される。</li>
+<li>CodeGraph もコードの処理は100%ローカルで、インデックスはリポジトリ直下 <code>.codegraph/</code> に保存される。<br>
+ただし匿名の利用統計（使用コマンド種別・言語種別等）の送信がデフォルト有効である点が他2つと異なる。<br>
+コード・パス・シンボル名は含まれないと <a href="http://TELEMETRY.md">TELEMETRY.md</a> に明記されているが、無効化して利用する（環境構築の章を参照）。</li>
 </ul>
 <p>コード以外の外部通信として以下がある。</p>
 <table>
@@ -390,6 +393,7 @@ GitHub Copilot や Cursor など、主要なエージェントが対応してい
 <tr>
 <th>通信</th>
 <th>codebase-memory-mcp</th>
+<th>CodeGraph</th>
 <th>Serena</th>
 </tr>
 </thead>
@@ -397,15 +401,24 @@ GitHub Copilot や Cursor など、主要なエージェントが対応してい
 <tr>
 <td>初回インストール時</td>
 <td>GitHub Releases からバイナリ取得</td>
+<td>npm / GitHub からパッケージ取得</td>
 <td>uvx が GitHub からソース取得・依存パッケージ取得</td>
 </tr>
 <tr>
 <td>起動時</td>
 <td>新バージョンの有無チェック（自動アップデート機構）</td>
+<td>なし（<code>upgrade</code> は手動実行）</td>
 <td>言語サーバ（clangd 等）が未導入の場合の自動ダウンロード</td>
 </tr>
 <tr>
+<td>匿名利用統計</td>
+<td>なし</td>
+<td>あり（既定ON、<code>telemetry off</code> で無効化）</td>
+<td>なし</td>
+</tr>
+<tr>
 <td>解析対象コード</td>
+<td>送信されない</td>
 <td>送信されない</td>
 <td>送信されない</td>
 </tr>
@@ -450,12 +463,33 @@ C/C++ では clangd を言語サーバとして使い、シンボルの定義・
 <li>clangd は「1つのビルド構成」しか見ない。FreeRTOS のような多ポート構成では、compile_commands.json に含まれないポートは不可視になる。</li>
 <li>大規模リポジトリでは初回インデックスと言語サーバの起動が重い。</li>
 </ul>
+<h3 id="codegraph">CodeGraph </h3>
+<p>tree-sitter でコードを解析し、リポジトリ直下 <code>.codegraph/</code> の SQLite に知識グラフとして永続化する MCP サーバ。<br>
+TypeScript 実装で、Node ランタイム同梱のバンドル版または npm で導入する。<br>
+MCP としては既定で <code>codegraph_explore</code> の1ツールのみを公開する設計。<br>
+関連シンボルのソース・コールパス・影響範囲（blast radius）を1回の呼び出しで返す。</p>
+<h4 id="強いところ-2">強いところ </h4>
+<ul>
+<li>インデックスが既定でリポジトリ直下 <code>.codegraph/</code> に置かれ、存在が見える（ワークスペース配置が標準）。</li>
+<li>鮮度維持が3ツール中で最も強い。OSのファイルイベントで保存の都度自動同期（デバウンス既定2秒）する。<br>
+未同期ファイルを参照する応答には警告バナーが付き、MCP接続時にも作業ツリーとの差分照合が走る。</li>
+<li>公開ツールが1つだけなので、ツール定義によるコンテキスト消費が最小。</li>
+<li>C は <code>.c</code>/<code>.h</code> フル対応。実リポジトリ（redis）でのクロスファイル解決率 92.2% の実測値を公開している。</li>
+</ul>
+<h4 id="弱いところ-2">弱いところ </h4>
+<ul>
+<li>tree-sitter でプリプロセス前を見る点は codebase-memory-mcp と同じ。<br>
+マクロエイリアスや <code>#if</code> による可視性の判定（検証項目2・3）は同様に苦手な可能性が高い。</li>
+<li>匿名利用統計の送信がデフォルト有効（無効化は可能。データ送信の整理を参照）。</li>
+<li>npm / Node 系の配布であり、単一静的バイナリの codebase-memory-mcp より供給元の確認事項が多い。</li>
+</ul>
 <h3 id="役割の違い">役割の違い </h3>
 <table>
 <thead>
 <tr>
 <th>観点</th>
 <th>codebase-memory-mcp</th>
+<th>CodeGraph</th>
 <th>Serena</th>
 </tr>
 </thead>
@@ -463,26 +497,43 @@ C/C++ では clangd を言語サーバとして使い、シンボルの定義・
 <tr>
 <td>解析基盤</td>
 <td>tree-sitter AST + Hybrid LSP（プリプロセス前）</td>
+<td>tree-sitter（プリプロセス前）</td>
 <td>clangd（LSP、プリプロセス後）</td>
 </tr>
 <tr>
 <td>C解析の前提条件</td>
+<td>なし</td>
 <td>なし</td>
 <td>compile_commands.json 必須</td>
 </tr>
 <tr>
 <td>ビュー</td>
 <td>全ソースの網羅ビュー</td>
+<td>全ソースの網羅ビュー</td>
 <td>単一ビルド構成の正確なビュー</td>
 </tr>
 <tr>
-<td>セットアップ</td>
-<td>ほぼゼロ</td>
-<td>重い</td>
+<td>インデックス格納先</td>
+<td>環境変数で指定（既定はユーザー配下）</td>
+<td>リポジトリ直下 <code>.codegraph/</code>（既定）</td>
+<td><code>.serena/</code> 配下</td>
+</tr>
+<tr>
+<td>公開ツール数</td>
+<td>14</td>
+<td>1（explore に集約）</td>
+<td>多数</td>
+</tr>
+<tr>
+<td>テレメトリ</td>
+<td>なし</td>
+<td>匿名利用統計（既定ON・無効化可）</td>
+<td>なし</td>
 </tr>
 <tr>
 <td>位置づけ</td>
 <td>構造知識グラフのクエリエンジン</td>
+<td>同左（explore 特化）</td>
 <td>エージェントが操作するIDE</td>
 </tr>
 </tbody>
@@ -522,11 +573,16 @@ DB 実体（後述の <code>.cbm-cache/</code>）を gitignore しておけば�
         <span class="token property">"CBM_CACHE_DIR"</span><span class="token operator">:</span> <span class="token string">"${workspaceFolder}\\.cbm-cache"</span>
       <span class="token punctuation">}</span>
     <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token property">"codegraph"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+      <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"stdio"</span><span class="token punctuation">,</span>
+      <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"codegraph"</span><span class="token punctuation">,</span>
+      <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">"serve"</span><span class="token punctuation">,</span> <span class="token string">"--mcp"</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
     <span class="token property">"serena"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token property">"type"</span><span class="token operator">:</span> <span class="token string">"stdio"</span><span class="token punctuation">,</span>
       <span class="token property">"command"</span><span class="token operator">:</span> <span class="token string">"uvx"</span><span class="token punctuation">,</span>
       <span class="token property">"args"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
-        <span class="token string">"--from"</span><span class="token punctuation">,</span> <span class="token string">"git+https://github.com/oraios/serena@&lt;コミットSHAまたはタグ&gt;"</span><span class="token punctuation">,</span>
+        <span class="token string">"--from"</span><span class="token punctuation">,</span> <span class="token string">"git+https://github.com/oraios/serena@2449313"</span><span class="token punctuation">,</span>
         <span class="token string">"serena"</span><span class="token punctuation">,</span> <span class="token string">"start-mcp-server"</span><span class="token punctuation">,</span>
         <span class="token string">"--context"</span><span class="token punctuation">,</span> <span class="token string">"ide-assistant"</span><span class="token punctuation">,</span>
         <span class="token string">"--project"</span><span class="token punctuation">,</span> <span class="token string">"${workspaceFolder}"</span>
@@ -541,57 +597,228 @@ DB 実体（後述の <code>.cbm-cache/</code>）を gitignore しておけば�
 <code>--skip-config</code> でバイナリ配置のみ行い、<code>.vscode/mcp.json</code> は手書きで管理する。<br>
 エージェント設定を勝手に書き換えられないので、何がどこに入ったかを把握できる。<br>
 トレードオフとして、本来 <code>install</code> が仕込む指示ファイルとフック（Grep 時にグラフ検索結果を非ブロッキングで添える補助）が入らない。<br>
-そのため、実運用時のグラフツールへの誘導は <a href="http://copilot-instructions.md">copilot-instructions.md</a> に自分で書く必要がある（付録A）。</p>
-<h4 id="バイナリ入手と検証">バイナリ入手と検証 </h4>
-<p>Releases から Windows 用 zip（<code>codebase-memory-mcp-windows-amd64.zip</code>）を取得する。<br>
-<code>checksums.txt</code> の SHA-256 と Attestation を検証しておく。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>gh attestation verify <span class="token punctuation">.</span>\codebase-memory-mcp-windows-amd64<span class="token punctuation">.</span>zip <span class="token operator">--</span>repo DeusData/codebase-memory-mcp
-</code></pre><p>問題ないことが確認できたら圧縮ファイルを展開する。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token function">Expand-Archive</span> codebase-memory-mcp-windows-amd64<span class="token punctuation">.</span>zip <span class="token operator">-</span>DestinationPath <span class="token punctuation">.</span><span class="token operator">/</span>codebase-memory-mcp
-</code></pre><p>エージェント設定は書き換えず、バイナリ配置とPATH追加のみ行うように<code>--skip-config</code>を指定して実行する。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token punctuation">.</span>\codebase-memory-mcp\install<span class="token punctuation">.</span>ps1 <span class="token operator">--</span><span class="token function">skip-config</span>
-</code></pre><p>インストーラは PATH への追加まで行うため、<code>.vscode/mcp.json</code> の <code>command</code> はコマンド名だけでよい。（前出の設定例）。<br>
+そのため、実運用時のグラフツールへの誘導は <a href="http://copilot-instructions.md">copilot-instructions.md</a> に自分で書く必要がある（→ 付録A）。</p>
+<ol>
+<li>
+<p>バイナリ入手と検証。<br>
+Releases から Windows 用 zip（<code>codebase-memory-mcp-windows-amd64.zip</code>）を取得する。<br>
+<code>checksums.txt</code> の SHA-256 と Attestation を検証してから、同梱インストーラを <code>--skip-config</code> で実行する。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>gh attestation verify <span class="token punctuation">.</span>\codebase-memory-mcp<span class="token punctuation">.</span>exe <span class="token operator">--</span>repo DeusData/codebase-memory-mcp
+
+<span class="token function">Expand-Archive</span> codebase-memory-mcp-windows-amd64<span class="token punctuation">.</span>zip <span class="token operator">-</span>DestinationPath <span class="token punctuation">.</span>
+<span class="token comment"># 一読してから実行（当社ルール）</span>
+<span class="token punctuation">.</span>\install<span class="token punctuation">.</span>ps1 <span class="token operator">--</span><span class="token function">skip-config</span>   <span class="token comment"># バイナリ配置とPATH追加のみ。エージェント設定は書き換えない</span>
+</code></pre><p>インストーラは PATH への追加まで行うため、<code>.vscode/mcp.json</code> の <code>command</code> はコマンド名だけでよい。<br>
 ただしユーザー PATH の変更は既存プロセスに反映されない。<br>
-インストール直後は新しいターミナルで <code>where.exe codebase-memory-mcp</code> が通ることを確認し、VS Code は完全に再起動（終了→起動）させる。</p>
-<p>バージョンは以下で確認できる。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>codebase-memory-mcp <span class="token operator">--</span>version
-</code></pre><h4 id="dbインデックスをワークスペース内に配置する">DB（インデックス）をワークスペース内に配置する </h4>
-<p>デフォルトでは SQLite DB がユーザープロファイル配下（<code>~/.cache/codebase-memory-mcp/</code>）に作られ、リポジトリから存在が見えない。<br>
-環境変数 <code>CBM_CACHE_DIR</code> で格納先を上書きできるので、<code>.vscode/mcp.json</code> の <code>env</code> で <code>${workspaceFolder}\.cbm-cache</code> を指定する（前出の設定例）。<br>
-あわせて <code>.gitignore</code> に追記する（今回はインデックスをコミットしない方針）。</p>
+インストール直後は新しいターミナルで <code>where.exe codebase-memory-mcp</code> が通ることを確認し、VS Code は完全に再起動（終了→起動）する。</p>
+</li>
+<li>
+<p>DB（インデックス）をワークスペース内に配置する。<br>
+デフォルトでは SQLite DB がユーザープロファイル配下（<code>~/.cache/codebase-memory-mcp/</code>）に作られ、リポジトリから存在が見えない。<br>
+環境変数 <code>CBM_CACHE_DIR</code> で格納先を上書きできるので、<code>.vscode/mcp.json</code> の <code>env</code> で <code>${workspaceFolder}\.cbm-cache</code> を指定する（前掲の設定例）。<br>
+あわせて <code>.gitignore</code> に追記する（インデックスは当面コミットしない方針）。</p>
 <pre data-role="codeBlock" data-info="gitignore" class="language-gitignore gitignore"><code><span class="token entry string">.cbm-cache<span class="token punctuation">/</span></span>
 <span class="token entry string">.codebase-memory<span class="token punctuation">/</span></span>
 </code></pre><blockquote>
 <p><code>.codebase-memory/</code> は Team-Shared Graph Artifact 用のディレクトリで、インデックス実行時に圧縮スナップショット <code>graph.db.zst</code> がリポジトリ直下に書かれることがある。<br>
 将来チームでインデックスを共有したくなったら、これをあえてコミットする選択肢がある（クローンした側は再インデックス不要になる公式機能）。今回は gitignore しておく。</p>
 </blockquote>
-<h4 id="インデックス作成">インデックス作成 </h4>
-<p>エージェント経由でも CLI でも実行できるが、無駄にトークン消費しいないよう CLI から実行する。<br>
+</li>
+<li>
+<p>インデックス作成。<br>
+エージェント経由でも CLI でも実行できるが、時間計測しやすい CLI を基本とする。<br>
 <strong>CLI から操作する場合も、MCP サーバと同じ DB を見るように同じ <code>CBM_CACHE_DIR</code> をシェル側に設定してから実行する。</strong><br>
 これを忘れると CLI はデフォルトのユーザーディレクトリ側に別の DB を作ってしまう。<br>
 「CLI ではインデックス済みなのにエージェントからは見えない」という事故になるため注意する。<br>
 なお <code>${workspaceFolder}</code> は VS Code の変数であり、シェルでは展開されないので実パスで指定する。</p>
 <pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token variable">$env</span>:CBM_CACHE_DIR = <span class="token string">"C:\work\FreeRTOS-Kernel\.cbm-cache"</span>
-codebase-memory-mcp <span class="token function">cli</span> index_repository <span class="token operator">--</span>repo-path <span class="token string">"C:\\work\\FreeRTOS-Kernel"</span> <span class="token punctuation">|</span> <span class="token function">ConvertFrom-Json</span> <span class="token punctuation">|</span> <span class="token function">ConvertTo-Json</span> <span class="token operator">-</span>Depth 10
+codebase-memory-mcp <span class="token function">cli</span> index_repository <span class="token string">'{"repo_path": "C:\\work\\FreeRTOS-Kernel"}'</span>
+codebase-memory-mcp <span class="token function">cli</span> list_projects   <span class="token comment"># ノード数・エッジ数・indexed_at を記録</span>
+</code></pre><p><code>list_projects</code> の結果は JSON で返るため、そのままでは読みにくい。<br>
+追加ツールを入れず、PowerShell 標準のコマンドレットで整形できる。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token comment"># 必要な項目だけ表形式で見る（記録用にはこれで十分）</span>
+<span class="token punctuation">(</span>codebase-memory-mcp <span class="token function">cli</span> list_projects <span class="token punctuation">|</span> <span class="token function">ConvertFrom-Json</span><span class="token punctuation">)</span><span class="token punctuation">.</span>projects <span class="token punctuation">|</span>
+    <span class="token function">Format-Table</span> name<span class="token punctuation">,</span> indexed_at<span class="token punctuation">,</span> node_count<span class="token punctuation">,</span> edge_count
+
+<span class="token comment"># 構造全体をインデント付きJSONで見る</span>
 codebase-memory-mcp <span class="token function">cli</span> list_projects <span class="token punctuation">|</span> <span class="token function">ConvertFrom-Json</span> <span class="token punctuation">|</span> <span class="token function">ConvertTo-Json</span> <span class="token operator">-</span>Depth 10
 </code></pre><blockquote>
-<p>Windows PowerShell 5.1 の <code>ConvertTo-Json</code> は非ASCII文字を <code>\uXXXX</code> にエスケープするため、日本語を含む出力は PowerShell 7（<code>pwsh</code>）の方が読みやすい。</p>
+<p>プロパティ名（<code>projects</code> や <code>node_count</code> 等）はバージョンで変わりうるため、表が空になる場合は後者で実際の構造を確認して読み替える。<br>
+Windows PowerShell 5.1 の <code>ConvertTo-Json</code> は非ASCII文字を <code>\uXXXX</code> にエスケープするため、日本語を含む出力は PowerShell 7（<code>pwsh</code>）の方が読みやすい。<br>
+じっくり眺めたい場合は <code>&gt; projects.json</code> でファイルに出し、VS Code で開いてドキュメントのフォーマット（<code>Shift+Alt+F</code>）を掛ける方法でもよい。</p>
 </blockquote>
-<h4 id="db-の更新忘れに気付ける仕組み">DB の更新忘れに気付ける仕組み </h4>
-<p>ソースを更新したのにインデックスが古いまま、という状態を検出できるようにしておく。</p>
-<p>codebase-memory-mcpには git ポーリングでファイル変更を検知して増分再インデックスする設定が存在する。<br>
+</li>
+<li>
+<p>DB の更新忘れに気付ける仕組み。<br>
+ソースを更新したのにインデックスが古いまま、という状態を検出できるようにする。二段構えとする。</p>
+<p>(a) 自動追従を有効にしておく（第一の防御）。<br>
+サーバには git ポーリングでファイル変更を検知して増分再インデックスする背景ウォッチャがあり、<code>auto_watch</code> はデフォルト有効である。<br>
 設定の確認・変更は <code>config list</code> / <code>config set</code> で行う。<br>
-なお設定はインデックスと同じ格納ディレクトリに保存されるため、前項と同様に <code>CBM_CACHE_DIR</code> をシェルに設定してから実行する。</p>
+なお設定はインデックスと同じ格納ディレクトリに保存されるため、手順3と同様に同じ <code>CBM_CACHE_DIR</code> をシェルに設定してから実行する。</p>
 <pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token variable">$env</span>:CBM_CACHE_DIR = <span class="token string">"C:\work\FreeRTOS-Kernel\.cbm-cache"</span>
 codebase-memory-mcp config list                  <span class="token comment"># auto_watch: true を確認</span>
 codebase-memory-mcp config <span class="token function">set</span> auto_watch true   <span class="token comment"># false だった場合に有効化する</span>
+</code></pre><p><code>config list</code> に <code>auto_watch</code> キー自体が表示されない場合は、バイナリが古く機能が入っていない可能性が高い。<br>
+<code>codebase-memory-mcp --version</code> でバージョンを確認し、Releases のリリースノートと突き合わせて判断する。<br>
+更新が必要な場合も自動アップデートは使わず、新リリースの検証（checksum / attestation）から手順1をやり直して差し替える。<br>
+更新できない事情がある場合は (a) を諦め、(b) の鮮度チェックと手動再インデックスのみで運用する。</p>
+<p>(b) 鮮度チェックをスクリプト化する（第二の防御。ウォッチャが動いていなかった場合の検出）。<br>
+<code>list_projects</code> の <code>indexed_at</code> と git の最終コミット時刻を突き合わせる。<br>
+リポジトリに <code>check_index_freshness.ps1</code> として置いておく。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code><span class="token variable">$env</span>:CBM_CACHE_DIR = <span class="token string">"<span class="token variable">$PSScriptRoot</span>\.cbm-cache"</span>
+<span class="token variable">$indexedAt</span> = <span class="token punctuation">(</span>codebase-memory-mcp <span class="token function">cli</span> <span class="token operator">--</span>raw list_projects <span class="token punctuation">|</span> <span class="token function">ConvertFrom-Json</span><span class="token punctuation">)</span><span class="token punctuation">.</span>projects <span class="token punctuation">|</span>
+    <span class="token function">Where-Object</span> <span class="token punctuation">{</span> <span class="token variable">$_</span><span class="token punctuation">.</span>name <span class="token operator">-like</span> <span class="token string">"*FreeRTOS*"</span> <span class="token punctuation">}</span> <span class="token punctuation">|</span> <span class="token function">Select-Object</span> <span class="token operator">-</span>ExpandProperty indexed_at
+<span class="token variable">$lastCommit</span> = git log <span class="token operator">-</span>1 <span class="token operator">--</span>format=<span class="token operator">%</span>cI
+<span class="token keyword keyword-if">if</span> <span class="token punctuation">(</span><span class="token namespace">[datetime]</span><span class="token variable">$lastCommit</span> <span class="token operator">-gt</span> <span class="token namespace">[datetime]</span><span class="token variable">$indexedAt</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token function">Write-Warning</span> <span class="token string">"インデックスが古い可能性: indexed_at=<span class="token variable">$indexedAt</span> &lt; last commit=<span class="token variable">$lastCommit</span> → 再インデックス推奨"</span>
+<span class="token punctuation">}</span> <span class="token keyword keyword-else">else</span> <span class="token punctuation">{</span>
+    <span class="token function">Write-Host</span> <span class="token string">"インデックスは最新 (indexed_at=<span class="token variable">$indexedAt</span>)"</span>
+<span class="token punctuation">}</span>
 </code></pre><blockquote>
-<p>ウォッチャは git ベースの変更検知なので、コミットされていない編集への追従タイミングは保証を当てにしないこと。</p>
+<p>注意点が2つある。<br>
+ウォッチャは git ベースの変更検知なので、コミットされていない編集への追従タイミングは保証を当てにしないこと。<br>
+また <code>--raw</code> 出力の JSON 構造はバージョンで変わりうるので、動かなくなったら <code>list_projects</code> の生出力を確認して調整すること。<br>
+エージェント側からは <code>index_status</code> ツールでも状態確認できる。</p>
 </blockquote>
-<p>検証（別紙）では、各クエリ実施前にこのチェックを通すことを手順に含める。</p>
-<h4 id="グラフツールへの誘導記述実運用向け比較検証では不要">グラフツールへの誘導記述（実運用向け・比較検証では不要） </h4>
-<p><code>--skip-config</code> では誘導用の指示ファイルが入らないため、実運用時は付録Aの雛形を <code>.github/copilot-instructions.md</code> に書く。<br>
+<p>検証（別紙）では、各クエリ実施前にこの鮮度チェックを通すことを手順に含める。</p>
+</li>
+<li>
+<p>グラフツールへの誘導記述（実運用向け・比較検証では不要）。<br>
+<code>--skip-config</code> では誘導用の指示ファイルが入らないため、実運用時は付録Aの雛形を <code>.github/copilot-instructions.md</code> に書く。<br>
 比較検証ではプロンプト側でツール使用を強制するため不要である（別紙参照）。</p>
+</li>
+</ol>
+<h3 id="serena-のセットアップ">Serena のセットアップ </h3>
+<ol>
+<li>
+<p>uv の導入。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>winget install astral-sh<span class="token punctuation">.</span>uv
+</code></pre>
+</li>
+<li>
+<p>clangd の導入。<br>
+LLVM 公式リリース、または <code>winget install LLVM.LLVM</code> で導入し、<code>clangd --version</code> が通ることを確認する。</p>
+</li>
+<li>
+<p>compile_commands.json の生成（最重要）。<br>
+FreeRTOS-Kernel は単体ではライブラリであり、<code>FreeRTOSConfig.h</code> とポート選択がないとビルドが成立しない。<br>
+最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。<br>
+リポジトリ同梱の <code>examples/template_configuration/FreeRTOSConfig.h</code> を利用する。</p>
+<p>WSL2/Linux 側での例:</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token comment"># リポジトリルートに検証用の最小 CMakeLists.txt を用意</span>
+<span class="token function">cat</span> <span class="token operator">&gt;</span> CMakeLists_bench.txt <span class="token operator">&lt;&lt;</span> <span class="token string">'EOF'
+cmake_minimum_required(VERSION 3.15)
+project(freertos_bench C)
+set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
+add_library(freertos_config INTERFACE)
+target_include_directories(freertos_config INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
+add_subdirectory(. FreeRTOS-Kernel)
+EOF</span>
+
+cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token punctuation">\</span>
+      <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX <span class="token punctuation">\</span>
+      <span class="token parameter variable">-C</span> /dev/null <span class="token parameter variable">-DCMAKE_PROJECT_INCLUDE</span><span class="token operator">=</span>CMakeLists_bench.txt <span class="token operator"><span class="token file-descriptor important">2</span>&gt;</span>/dev/null <span class="token punctuation">\</span>
+  <span class="token operator">||</span> cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX
+
+<span class="token comment"># clangd はルート直下の compile_commands.json を探す</span>
+<span class="token function">cp</span> build/compile_commands.json <span class="token builtin class-name">.</span>
+</code></pre><blockquote>
+<p>上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。<br>
+<code>FreeRTOS/FreeRTOS</code>（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。<br>
+どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。</p>
+</blockquote>
+</li>
+<li>
+<p><code>.vscode/mcp.json</code> への登録。<br>
+前掲の設定例の serena エントリを使う。<br>
+uvx は指定がないと実行のたびに main の最新を取りに行くため、<code>@コミットSHA</code> または <code>@タグ</code> で必ずピン止めする。<br>
+<code>--project ${workspaceFolder}</code> により、対象プロジェクトは開いているワークスペースに固定される。</p>
+</li>
+<li>
+<p>プロジェクト設定。<br>
+初回起動で生成される <code>.serena/project.yml</code> を編集する。</p>
+<pre data-role="codeBlock" data-info="yaml" class="language-yaml yaml"><code><span class="token key atrule">languages</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> cpp        <span class="token comment"># C は cpp 言語キー（clangd）で扱う</span>
+<span class="token key atrule">read_only</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>  <span class="token comment"># 今回は read-only 比較なので編集ツールを無効化</span>
+</code></pre>
+</li>
+<li>
+<p>インデックスとオンボーディング。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>uvx <span class="token operator">--</span><span class="token keyword keyword-from">from</span> <span class="token string">"git+https://github.com/oraios/serena@&lt;同じピン&gt;"</span> serena project index
+</code></pre><p>Copilot Chat（Agent モード）での初回セッションではオンボーディング（プロジェクト理解メモの生成）が走る。<br>
+オンボーディング完了後を計測開始点とする（初回セッションを計測に含めない）。</p>
+</li>
+</ol>
+<h3 id="codegraph-のセットアップ">CodeGraph のセットアップ </h3>
+<p>方針:<br>
+エージェント自動設定コマンド（<code>codegraph install</code>）は使わない（<code>--skip-config</code> と同方針）。<br>
+なお <code>codegraph install</code> の自動構成対象に VS Code / Copilot は含まれておらず、いずれにせよ手動登録となる。<br>
+使うのは CLI 導入・テレメトリ無効化・プロジェクト初期化・<code>.vscode/mcp.json</code> への手動登録の4つだけである。</p>
+<ol>
+<li>
+<p>CLI の導入（バージョン固定）。<br>
+公式のワンライナーインストーラ（<code>irm ... | iex</code>）は使わず、npm でバージョンを固定して導入する。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>npm i <span class="token operator">-</span>g @colbymchenry/codegraph@&lt;バージョン&gt;
+codegraph version   <span class="token comment"># 起動確認</span>
+</code></pre><blockquote>
+<p>Node ランタイム同梱設計のためネイティブビルドは不要とされているが、<code>ignore-scripts=true</code> 環境で<br>
+起動に失敗する場合は、公式インストーラスクリプトを一読のうえ実行する方式に切り替える。</p>
+</blockquote>
+</li>
+<li>
+<p>テレメトリの無効化。<br>
+匿名利用統計の送信がデフォルト有効のため、当社方針に合わせて無効化する。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>codegraph telemetry off   <span class="token comment"># 環境変数 CODEGRAPH_TELEMETRY=0 でも可</span>
+codegraph telemetry       <span class="token comment"># off になっていることを確認</span>
+</code></pre>
+</li>
+<li>
+<p>プロジェクト初期化（インデックス作成）。</p>
+<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>cd C:\work\FreeRTOS-Kernel
+codegraph init      <span class="token comment"># .codegraph/ の作成とグラフ構築を一括で行う</span>
+codegraph status    <span class="token comment"># シンボル数等を記録</span>
+</code></pre><p>インデックスは既定でリポジトリ直下の <code>.codegraph/</code>（SQLite）に作られる。<br>
+ワークスペース内配置が標準動作のため、<code>CBM_CACHE_DIR</code> のような対策は不要である。<br>
+<code>.gitignore</code> に <code>.codegraph/</code> を追記する。</p>
+</li>
+<li>
+<p><code>.vscode/mcp.json</code> への登録。<br>
+前掲の設定例の codegraph エントリを使う（<code>codegraph serve --mcp</code> を stdio で起動するだけ）。</p>
+</li>
+<li>
+<p>鮮度の考え方。<br>
+CodeGraph は OS のファイルイベントで保存の都度自動同期し、未同期ファイルへの応答には警告バナーが付く。<br>
+MCP 接続時にも作業ツリーとの差分照合が走るため、手動での再インデックスは原則不要である。<br>
+比較検証では他ツールと条件を揃えるため、各クエリ実施前に <code>codegraph status</code> を実行し、<br>
+<code>Pending sync:</code> が表示されないこと（＝未同期ファイルなし）を確認してから開始する。</p>
+</li>
+<li>
+<p>測定上の注意。<br>
+MCP として公開されるツールは既定で <code>codegraph_explore</code> の1つだけである。<br>
+このため採点表の「ツール呼び出し回数」は構造的に少なく出る。<br>
+他2ツールとの回数比較は優劣ではなく設計思想の差として解釈し、備考欄にその旨を記録する。<br>
+（<code>CODEGRAPH_MCP_TOOLS</code> 環境変数で callers / impact 等の個別ツールを公開することもできる。）</p>
+</li>
+</ol>
+<h3 id="起動と動作確認">起動と動作確認 </h3>
+<ol>
+<li><code>.vscode/mcp.json</code> を保存すると、ファイル内のサーバ一覧上部に Start ボタンが表示されるのでクリックして起動する。<br>
+初回はサーバを信頼するかの確認ダイアログが出る。</li>
+<li>Copilot Chat を開き、モードを Agent に切り替える。</li>
+<li>チャット入力欄のツールアイコンを開き、サーバとツールの一覧が見えることを確認する。<br>
+ツール一覧では使う予定のサーバ/ツールだけ有効化する。<br>
+同時有効化できるツール数には上限があり、有効ツールが多いほどツール定義分のコンテキストを毎ターン消費するためである。</li>
+<li>初回のツール呼び出し時は実行許可の確認ダイアログが出る。<br>
+許可のスコープ（今回のみ / セッション / ワークスペース）を選べるので、検証時はセッション程度に留めるのが無難である。</li>
+<li>動作確認の目安は次のとおり。<br>
+codebase-memory-mcp は <code>list_projects</code> でノード数・エッジ数・<code>indexed_at</code> が返ること。<br>
+CodeGraph は <code>codegraph_explore</code> に <code>xTaskCreate</code> を尋ね、tasks.c のソースと呼び出し元が返ること。<br>
+Serena は <code>find_symbol</code> で <code>xTaskCreate</code> の定義が <code>tasks.c</code> に解決されること。<br>
+Serena でクロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。</li>
+<li>トラブル時はコマンドパレット → <code>MCP: List Servers</code> → 対象サーバ → Show Output でサーバログを確認する。<br>
+Serena はダッシュボード（<a href="http://localhost:24282/dashboard/">http://localhost:24282/dashboard/</a>）でも状態を確認できる。</li>
+</ol>
 <hr>
 <h2 id="付録a-実運用での素の-grep-と-mcp-ツールの使い分け">付録A: 実運用での素の Grep と MCP ツールの使い分け </h2>
 <p>比較検証では公平性のため内蔵ツールを封じるが、実運用で Grep を禁止してはいけない。<br>
@@ -620,10 +847,11 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
 <span class="token list punctuation">-</span> 単一ファイルの内容確認は Read を使うこと。
 <span class="token list punctuation">-</span> グラフの結果が疑わしい場合（0件・鮮度警告あり）は、インデックスの
   再作成を提案した上で grep で裏取りしてよい。
-</code></pre><blockquote>
-<p><code>--skip-config</code> を使わない標準インストールでは、検出したエージェントに対して同趣旨の指示ファイルやスキル、Grep 時にグラフ検索結果を添える非ブロッキングのフックが自動で入る。<br>
-<code>--skip-config</code> 運用では、この雛形を <a href="http://copilot-instructions.md">copilot-instructions.md</a> に書くことで代替する。</p>
-</blockquote>
+</code></pre><p>CodeGraph を使う場合は、雛形中のグラフツール名を <code>codegraph_explore</code> に読み替える。</p>
+<div class="note">
+<p>codebase-memory-mcp の <code>--skip-config</code> を使わない標準インストールでは、検出したエージェントに対して同趣旨の指示ファイルやスキル、Grep 時にグラフ検索結果を添える非ブロッキングのフックが自動で入る（CodeGraph の <code>codegraph install</code> も同様に指示ファイルを書き込む）。<br>
+手動構成の運用では、この雛形を <a href="http://copilot-instructions.md">copilot-instructions.md</a> に書くことで代替する。</p>
+</div>
 <h3 id="まとめ">まとめ </h3>
 <table>
 <thead>
@@ -656,85 +884,6 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
 </tr>
 </tbody>
 </table>
-<hr>
-<h3 id="serena-のセットアップ">Serena のセットアップ </h3>
-<h4 id="uv-の導入">uv の導入 </h4>
-<p>以下で導入する。<br>
-導入済みなら不要。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>winget install <span class="token operator">--</span>source winget <span class="token operator">--</span>id astral-sh<span class="token punctuation">.</span>uv <span class="token operator">-</span>e
-</code></pre><p>以下でバージョン確認できればOK</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>uv <span class="token operator">-</span>V
-</code></pre><h4 id="clangd-の導入">clangd の導入 </h4>
-<p>以下で導入する。<br>
-導入済みなら不要。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>winget install <span class="token operator">--</span>source winget <span class="token operator">--</span>id LLVM<span class="token punctuation">.</span>LLVM <span class="token operator">-</span>e
-</code></pre><p>以下通ればOK</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>clangd <span class="token operator">--</span>version
-</code></pre><h4 id="compile_commandsjson-の生成最重要">compile_commands.json の生成（最重要） </h4>
-<p>FreeRTOS-Kernel は単体ではライブラリであり、<code>FreeRTOSConfig.h</code> とポート選択がないとビルドが成立しない。<br>
-最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。<br>
-リポジトリ同梱の <code>examples/template_configuration/FreeRTOSConfig.h</code> を利用する。</p>
-<p>WSL2/Linux 側での例:</p>
-<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token comment"># リポジトリルートに検証用の最小 CMakeLists.txt を用意</span>
-<span class="token function">cat</span> <span class="token operator">&gt;</span> CMakeLists_bench.txt <span class="token operator">&lt;&lt;</span> <span class="token string">'EOF'
-cmake_minimum_required(VERSION 3.15)
-project(freertos_bench C)
-set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
-add_library(freertos_config INTERFACE)
-target_include_directories(freertos_config INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
-add_subdirectory(. FreeRTOS-Kernel)
-EOF</span>
-
-cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token punctuation">\</span>
-      <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX <span class="token punctuation">\</span>
-      <span class="token parameter variable">-C</span> /dev/null <span class="token parameter variable">-DCMAKE_PROJECT_INCLUDE</span><span class="token operator">=</span>CMakeLists_bench.txt <span class="token operator"><span class="token file-descriptor important">2</span>&gt;</span>/dev/null <span class="token punctuation">\</span>
-  <span class="token operator">||</span> cmake <span class="token parameter variable">-S</span> <span class="token builtin class-name">.</span> <span class="token parameter variable">-B</span> build <span class="token parameter variable">-DCMAKE_EXPORT_COMPILE_COMMANDS</span><span class="token operator">=</span>ON <span class="token parameter variable">-DFREERTOS_PORT</span><span class="token operator">=</span>GCC_POSIX
-
-<span class="token comment"># clangd はルート直下の compile_commands.json を探す</span>
-<span class="token function">cp</span> build/compile_commands.json <span class="token builtin class-name">.</span>
-</code></pre><blockquote>
-<p>上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。<br>
-<code>FreeRTOS/FreeRTOS</code>（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。<br>
-どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。</p>
-</blockquote>
-<h4 id="vscodemcpjson-への登録"><code>.vscode/mcp.json</code> への登録 </h4>
-<p>前出の設定例の serena エントリを使う。<br>
-uvx は指定がないと実行のたびに main の最新を取りに行くため、<code>@コミットSHA</code> または <code>@タグ</code> で必ずピン止めする。<br>
-<code>--project ${workspaceFolder}</code> により、対象プロジェクトは開いているワークスペースに固定される。</p>
-<ol start="5">
-<li>
-<p>プロジェクト設定。<br>
-初回起動で生成される <code>.serena/project.yml</code> を編集する。</p>
-<pre data-role="codeBlock" data-info="yaml" class="language-yaml yaml"><code><span class="token key atrule">languages</span><span class="token punctuation">:</span>
-  <span class="token punctuation">-</span> cpp        <span class="token comment"># C は cpp 言語キー（clangd）で扱う</span>
-<span class="token key atrule">read_only</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>  <span class="token comment"># 今回は read-only 比較なので編集ツールを無効化</span>
-</code></pre>
-</li>
-<li>
-<p>インデックスとオンボーディング。</p>
-<pre data-role="codeBlock" data-info="powershell" class="language-powershell powershell"><code>uvx <span class="token operator">--</span><span class="token keyword keyword-from">from</span> <span class="token string">"git+https://github.com/oraios/serena@&lt;同じピン&gt;"</span> serena project index
-</code></pre><p>Copilot Chat（Agent モード）での初回セッションではオンボーディング（プロジェクト理解メモの生成）が走る。<br>
-オンボーディング完了後を計測開始点とする（初回セッションを計測に含めない）。</p>
-</li>
-</ol>
-<h3 id="起動と動作確認">起動と動作確認 </h3>
-<ol>
-<li><code>.vscode/mcp.json</code> を保存すると、ファイル内のサーバ一覧上部に Start ボタンが表示されるのでクリックして起動する。<br>
-初回はサーバを信頼するかの確認ダイアログが出る。</li>
-<li>Copilot Chat を開き、モードを Agent に切り替える。</li>
-<li>チャット入力欄のツールアイコンを開き、サーバとツールの一覧が見えることを確認する。<br>
-ツール一覧では使う予定のサーバ/ツールだけ有効化する。<br>
-同時有効化できるツール数には上限があり、有効ツールが多いほどツール定義分のコンテキストを毎ターン消費するためである。</li>
-<li>初回のツール呼び出し時は実行許可の確認ダイアログが出る。<br>
-許可のスコープ（今回のみ / セッション / ワークスペース）を選べるので、検証時はセッション程度に留めるのが無難である。</li>
-<li>動作確認の目安は次のとおり。<br>
-codebase-memory-mcp は <code>list_projects</code> でノード数・エッジ数・<code>indexed_at</code> が返ること。<br>
-Serena は <code>find_symbol</code> で <code>xTaskCreate</code> の定義が <code>tasks.c</code> に解決されること。<br>
-Serena でクロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。</li>
-<li>トラブル時はコマンドパレット → <code>MCP: List Servers</code> → 対象サーバ → Show Output でサーバログを確認する。<br>
-Serena はダッシュボード（<a href="http://localhost:24282/dashboard/">http://localhost:24282/dashboard/</a>）でも状態を確認できる。</li>
-</ol>
 
       </div>
       
