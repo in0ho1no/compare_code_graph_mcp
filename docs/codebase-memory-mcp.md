@@ -95,7 +95,7 @@ Claude Code の場合はリポジトリ直下 `.mcp.json` の `mcpServers` に�
 
 ### DB（インデックス）をワークスペース内に配置する
 
-デフォルトでは SQLite DB がユーザープロファイル配下（`~/.cache/codebase-memory-mcp/`）に作られ、リポジトリから存在が見えない。  
+デフォルトでは SQLite DB がユーザープロファイル配下の既定キャッシュディレクトリに作られ、リポジトリから存在が見えない。  
 環境変数 `CBM_CACHE_DIR` で格納先を上書きできるので、MCP 設定の `env` で `${workspaceFolder}\.cbm-cache`（Claude Code は実パス）を指定する（前出の設定例）。  
 あわせて `.gitignore` に追記する（今回はインデックスをコミットしない方針）。
 

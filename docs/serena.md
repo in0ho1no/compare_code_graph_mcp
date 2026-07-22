@@ -72,35 +72,54 @@ clangd --version
 このファイルを用意できないと話にならない。
 
 FreeRTOS-Kernel は単体ではライブラリであり、`FreeRTOSConfig.h` とポート選択がないとビルドが成立しない。  
-最小構成として POSIX ポート（または MSVC/MinGW ポート）でコンパイルDBだけ作る。  
-リポジトリ同梱の `examples/template_configuration/FreeRTOSConfig.h` を利用する。
+Windows ネイティブで完結させるため、Windows シミュレータ用の `MSVC_MINGW` ポートを使ってコンパイルDBだけ作る。  
+設定ヘッダはリポジトリ同梱の `examples/template_configuration/FreeRTOSConfig.h` を利用する。
 
-WSL2/Linux 側での例:
+前提ツールとして cmake / ninja / MinGW-w64 gcc が PATH に通っていること。
 
-```bash
-# リポジトリルートに検証用の最小 CMakeLists.txt を用意
-cat > CMakeLists_bench.txt << 'EOF'
-cmake_minimum_required(VERSION 3.15)
-project(freertos_bench C)
-set(FREERTOS_PORT GCC_POSIX CACHE STRING "")
-add_library(freertos_config INTERFACE)
-target_include_directories(freertos_config INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/examples/template_configuration)
-add_subdirectory(. FreeRTOS-Kernel)
-EOF
-
-cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-      -DFREERTOS_PORT=GCC_POSIX \
-      -C /dev/null -DCMAKE_PROJECT_INCLUDE=CMakeLists_bench.txt 2>/dev/null \
-  || cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DFREERTOS_PORT=GCC_POSIX
-
-# clangd はルート直下の compile_commands.json を探す
-cp build/compile_commands.json .
+```powershell
+cmake --version; ninja --version; gcc --version   # 3つとも通ることを確認
 ```
 
-> 上記がリポジトリの CMake 構成の変更で通らない場合の代替手段がある。  
-> `FreeRTOS/FreeRTOS`（デモ付きリポジトリ）の Posix デモをビルドして compile_commands.json を得る方法が確実である。  
-> どの手段で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。
+リポジトリルートで以下を実行する。実際にビルドする必要はなく、configure が完了した時点で compile_commands.json は生成される。
+
+```powershell
+cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc `
+      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON `
+      -DFREERTOS_PORT=MSVC_MINGW -DFREERTOS_HEAP=4 `
+      "-DFREERTOS_CONFIG_FILE_DIRECTORY=$PWD/examples/template_configuration"
+
+# clangd はルート直下の compile_commands.json を探す
+Copy-Item build/compile_commands.json .
+```
+
+> - `FREERTOS_CONFIG_FILE_DIRECTORY` は deprecated 扱いだが V11.3.0 では動作し、freertos_config ターゲットを自作せずに済む。  
+> configure 時に出る deprecated 警告と「No project() command is present」警告は無視してよい。
+> - 生成される DB に入るのはカーネル本体 + `portable/MSVC-MingW/port.c` + `heap_4.c` の9ファイルである。  
+> Serena/clangd から見えるのはこの構成だけになる（検証項目4の挙動に効く）。
+> - configure に失敗した場合はキャッシュが壊れている可能性があるため、`build/` を削除してから再実行する。
+> - 別のリポジトリに適用する場合はポートと設定ヘッダのパスを読み替え、どの構成で作ったかを必ず記録に残すこと（Serena の見えるビュー＝この構成、が検証結果の解釈に効くため）。
+
+### clangd へのシステムインクルードパスの設定（`.clangd`）
+
+compile_commands.json のコンパイラは MinGW gcc だが、clangd は gcc のシステムインクルードパス（`stdlib.h` 等の場所）を自動では解決できず、そのままでは `'stdlib.h' file not found` で解析精度が落ちる。  
+リポジトリ直下に `.clangd` を生成してパスを教える。
+
+```powershell
+# gcc からシステムインクルードパスを取得して .clangd を生成する（リポジトリルートで実行）
+$inc = & gcc -E "-Wp,-v" -xc nul 2>&1 | Select-String '^ ' | ForEach-Object { $_.Line.Trim() }
+@("CompileFlags:", "  Add:", "    - `"--target=x86_64-w64-mingw32`"") +
+    ($inc | ForEach-Object { "    - `"-isystem$_`"" }) | Set-Content .clangd
+```
+
+生成後、以下で確認する。
+
+```powershell
+clangd --check=tasks.c
+```
+
+システムヘッダの `file not found` エラーが出なければOK。  
+出力に多数出る `tweak: SwapBinaryOperands ==> FAIL` は clangd 内部のリファクタリング自己テストのノイズであり、無視してよい。
 
 ### MCP クライアントへの登録
 
