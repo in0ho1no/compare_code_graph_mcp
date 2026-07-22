@@ -26,7 +26,9 @@ export_on_save:
 | [codebase-memory-mcp.md](codebase-memory-mcp.md) | codebase-memory-mcp の紹介とセットアップ |
 | [serena.md](serena.md) | Serena の紹介とセットアップ |
 | [codegraph.md](codegraph.md) | CodeGraph の紹介とセットアップ |
-| [比較検証.md](比較検証.md) | FreeRTOS を用いた機能比較の実施手順（検証クエリ・正解データ・採点表） |
+| [比較検証.md](比較検証.md) | FreeRTOS を用いた機能比較の実施手順（検証クエリ・正解データの作成手順・判定の目安） |
+| [answers/](answers/) | Q1〜Q6 の正解データ（コミット `9b777ae5` 時点で作成済み） |
+| [results/](results/) | 採点シート（試行記録・エージェント別集計サマリ） |
 
 ---
 
