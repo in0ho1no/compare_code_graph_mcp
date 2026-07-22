@@ -104,7 +104,7 @@ cp build/compile_commands.json .
 
 ### MCP クライアントへの登録
 
-GitHub Copilot（VS Code）の場合は `.vscode/mcp.json` に以下のエントリを追加する（ファイル全体の書き方は mcp-basics.md 参照）。  
+GitHub Copilot（VS Code）の場合は `.vscode/mcp.json` に以下のエントリを追加する（ファイル全体の書き方は mcp-basics\.md 参照）。  
 uvx は指定がないと実行のたびに main の最新を取りに行くため、`@コミットSHA` で必ずピン止めする。  
 `--project ${workspaceFolder}` により、対象プロジェクトは開いているワークスペースに固定される。
 
@@ -126,7 +126,7 @@ uvx は指定がないと実行のたびに main の最新を取りに行くた�
 ```
 
 Claude Code の場合はリポジトリ直下 `.mcp.json` の `mcpServers` に同じ内容を登録する。  
-ただし `${workspaceFolder}` は使えないため、`--project` は対象リポジトリの実パスで指定する（設定例は mcp-basics.md）。
+ただし `${workspaceFolder}` は使えないため、`--project` は対象リポジトリの実パスで指定する（設定例は mcp-basics\.md）。
 
 ### プロジェクト設定
 
@@ -148,7 +148,7 @@ uvx --from "git+https://github.com/oraios/serena@2449313" serena project index
 
 ## 動作確認
 
-- 起動〜ツール有効化の共通手順は mcp-basics.md の「起動と動作確認」を参照。
+- 起動〜ツール有効化の共通手順は mcp-basics\.md の「起動と動作確認」を参照。
 - 動作確認の目安: `find_symbol` で `xTaskCreate` の定義が `tasks.c` に解決されること。  
 クロスファイル参照が0件しか返らない場合は、clangd が compile_commands.json を読めていないサインである。
 - Serena はダッシュボード（<http://localhost:24282/dashboard/>）でも状態を確認できる。

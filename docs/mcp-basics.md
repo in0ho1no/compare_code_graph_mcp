@@ -14,7 +14,7 @@ export_on_save:
 - 想定エージェント: Claude Code および GitHub Copilot Chat（VS Code、Agent モード）
 - サンプルリポジトリ: [FreeRTOS-Kernel](https://github.com/FreeRTOS/FreeRTOS-Kernel)  
 本書のパス・コマンド例は、このリポジトリを `C:\work\FreeRTOS-Kernel` に取得した前提で記載する。  
-別のリポジトリに適用する場合は、パスと clangd 用ビルド構成（serena.md の手順）を読み替える。
+別のリポジトリに適用する場合は、パスと clangd 用ビルド構成（serena\.md の手順）を読み替える。
 
 ## ドキュメント構成
 
@@ -22,7 +22,7 @@ export_on_save:
 
 | ファイル | 内容 |
 | --- | --- |
-| mcp-basics.md（本書） | MCP の概要、データ送信の整理、3ツール共通の前提・設定・有効化手順 |
+| mcp-basics\.md（本書） | MCP の概要、データ送信の整理、3ツール共通の前提・設定・有効化手順 |
 | [codebase-memory-mcp.md](codebase-memory-mcp.md) | codebase-memory-mcp の紹介とセットアップ |
 | [serena.md](serena.md) | Serena の紹介とセットアップ |
 | [codegraph.md](codegraph.md) | CodeGraph の紹介とセットアップ |
@@ -53,17 +53,17 @@ GitHub Copilot や Cursor など、主要なエージェントが対応してい
 ## データ送信に関する整理
 
 **ここで紹介するMCPサーバはいずれも、自発的に外部へコードを送信することはない。**  
-**コードが社外（LLM API）へ出るのは、Coding Agent が通常の推論リクエストとして送信する経路のみである。**
+**コードが外部（LLM API）へ出るのは、Coding Agent が通常の推論リクエストとして送信する経路のみである。**
 
 - MCP サーバはローカルプロセスとして動作し、通信相手は MCP クライアント（エージェント）だけである。
 - ツールの実行結果（関数一覧、呼び出しグラフ等）は、エージェントがコンテキストに含めた時点で初めて LLM API へ送られる。  
 これは MCP を使わずエージェントがファイルを直接 Read する場合と同じ経路であり、MCP を挟むことで新しい送信経路が増えるわけではない。
 - codebase-memory-mcp は README で「100%ローカル動作・テレメトリ収集なし」を明言している。  
-インデックス（SQLite DB）もローカル保存される（格納先は codebase-memory-mcp.md を参照）。
+インデックス（SQLite DB）もローカル保存される（格納先は codebase-memory-mcp\.md を参照）。
 - Serena もローカル実行で、インデックスやメモリは `.serena/` 配下にローカル保存される。
 - CodeGraph もコードの処理は100%ローカルで、インデックスはリポジトリ直下 `.codegraph/` に保存される。  
 ただし匿名の利用統計（使用コマンド種別・言語種別等）の送信がデフォルト有効である点が他2つと異なる。  
-コード・パス・シンボル名は含まれないと TELEMETRY.md に明記されているが、無効化して利用する（codegraph.md を参照）。
+コード・パス・シンボル名は含まれないと TELEMETRY\.md に明記されているが、無効化して利用する（codegraph\.md を参照）。
 
 コード以外の外部通信として以下がある。
 
@@ -259,7 +259,7 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
 3. フォールバック・クロスチェックとしての価値がある。  
 インデックスが古い/パース漏れがあるとき、grep での裏取りが誤答を防ぐ。
 
-### 使い分けの指針（copilot-instructions.md に書く内容の雛形）
+### 使い分けの指針（copilot-instructions\.md に書く内容の雛形）
 
 ```markdown
 ## コード調査ツールの使い分け
@@ -274,10 +274,10 @@ codebase-memory-mcp 自身のスキル定義も「テキスト検索は grep/Glo
 ```
 
 > codebase-memory-mcp を `--skip-config` を使わず標準インストールした場合は、検出したエージェントに対して同趣旨の指示ファイルやスキル、Grep 時にグラフ検索結果を添える非ブロッキングのフックが自動で入る。  
-> `--skip-config` 運用では、この雛形を copilot-instructions.md に書くことで代替する（codebase-memory-mcp.md 参照）。
+> `--skip-config` 運用では、この雛形を copilot-instructions\.md に書くことで代替する（codebase-memory-mcp\.md 参照）。
 
 CodeGraph を使う場合は、雛形中のグラフツール名を `codegraph_explore` に読み替える。  
-Claude Code で運用する場合は、この雛形を copilot-instructions.md ではなくプロジェクトの `CLAUDE.md` に書く。
+Claude Code で運用する場合は、この雛形を copilot-instructions\.md ではなくプロジェクトの `CLAUDE.md` に書く。
 
 ### まとめ
 

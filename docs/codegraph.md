@@ -31,7 +31,7 @@ MCP としては既定で `codegraph_explore` の1ツールのみを公開する
 
 - tree-sitter でプリプロセス前を見る点は codebase-memory-mcp と同じ。  
 マクロエイリアスや `#if` による可視性の判定（検証項目2・3）は同様に苦手な可能性が高い。
-- 匿名利用統計の送信がデフォルト有効（無効化は可能。mcp-basics.md の「データ送信に関する整理」を参照）。
+- 匿名利用統計の送信がデフォルト有効（無効化は可能。mcp-basics\.md の「データ送信に関する整理」を参照）。
 - npm / Node 系の配布であり、単一静的バイナリの codebase-memory-mcp より供給元の確認事項が多い。
 
 ## セットアップ
@@ -55,7 +55,7 @@ codegraph version   # 起動確認
 
 ### テレメトリの無効化
 
-匿名利用統計の送信がデフォルト有効のため、当社方針に合わせて無効化する。
+匿名利用統計の送信がデフォルト有効のため、今回の方針では無効化する。
 
 ```powershell
 codegraph telemetry off   # 環境変数 CODEGRAPH_TELEMETRY=0 でも可
@@ -76,7 +76,7 @@ codegraph status    # シンボル数等を記録
 
 ### MCP クライアントへの登録
 
-GitHub Copilot（VS Code）の場合は `.vscode/mcp.json` に以下のエントリを追加する（ファイル全体の書き方は mcp-basics.md 参照）。  
+GitHub Copilot（VS Code）の場合は `.vscode/mcp.json` に以下のエントリを追加する（ファイル全体の書き方は mcp-basics\.md 参照）。  
 `codegraph serve --mcp` を stdio で起動するだけである。
 
 ```json
@@ -91,7 +91,7 @@ GitHub Copilot（VS Code）の場合は `.vscode/mcp.json` に以下のエント
 }
 ```
 
-Claude Code の場合はリポジトリ直下 `.mcp.json` の `mcpServers` に同じ内容を登録する（設定例は mcp-basics.md）。
+Claude Code の場合はリポジトリ直下 `.mcp.json` の `mcpServers` に同じ内容を登録する（設定例は mcp-basics\.md）。
 
 ### 鮮度の考え方
 
@@ -109,5 +109,5 @@ MCP として公開されるツールは既定で `codegraph_explore` の1つだ
 
 ## 動作確認
 
-- 起動〜ツール有効化の共通手順は mcp-basics.md の「起動と動作確認」を参照。
+- 起動〜ツール有効化の共通手順は mcp-basics\.md の「起動と動作確認」を参照。
 - 動作確認の目安: `codegraph_explore` に `xTaskCreate` を尋ね、tasks.c のソースと呼び出し元が返ること。
